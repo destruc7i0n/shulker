@@ -21,9 +21,3 @@ Run the tests with:
 ```bash
 $ npm test
 ```
-
-## License
-
-(The MIT License)
-
-by destruc7i0n
