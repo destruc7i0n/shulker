@@ -24,7 +24,7 @@ tail -F /PATH_TO_MINECRAFT_INSTALL/logs/latest.log | grep --line-buffered ": <" 
 ```
 
 Clone repository onto a server, edit ```config.json``` (see below for more info) and change any options, and then,
-```bash
+```sh
 In the repository folder:
 $ npm install
 $ npm start
