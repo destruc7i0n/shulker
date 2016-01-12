@@ -62,6 +62,10 @@ $ npm test
 ## Upcoming
 * A "merge accounts" function to allow Minecraft players to associate their Discord accounts with their Minecraft accounts so that usernames are accurate
 * Ability to post messages to Discord on behalf of Discord users, rather than using a bot user (hopefully after the official API is released)
+* 
+
+### Thanks
+@hydrabolt for discord.js
 
 ## License
 
