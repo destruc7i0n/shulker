@@ -65,7 +65,7 @@ $ npm test
 * 
 
 ### Thanks
-@hydrabolt for discord.js
+[hydrabolt](https://github.com/hydrabolt) for discord.js
 
 ## License
 
