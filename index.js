@@ -12,17 +12,13 @@ var d2m = new Discord.Client();
 var client = new Rcon(c.MINECRAFT_SERVER_RCON_IP, c.MINECRAFT_SERVER_RCON_PORT, c.MINECRAFT_SERVER_RCON_PASSWORD);
 
 client.on("auth", function() {
-    if(debug) {
-        console.log("[DEBUG] Authenticated with "+c.MINECRAFT_SERVER_RCON_IP+":"+c.MINECRAFT_SERVER_RCON_PORT);
-    }
+    console.log("[INFO] Authenticated with "+c.MINECRAFT_SERVER_RCON_IP+":"+c.MINECRAFT_SERVER_RCON_PORT);
 }).on("response", function(str) {
     if(debug && str) {
         console.log("[DEBUG] Got response: " + str);
     }
 }).on("end", function() {
-    if(debug) {
-        console.log("[DEBUG] Rcon closed!");
-    }
+    console.log("[INFO] Rcon closed!");
 });
 
 client.connect();
@@ -44,9 +40,7 @@ d2m.on("ready", function() {
     var channel = d2m.channels.get("name", c.DISCORD_CHANNEL).id; 
     app.post(c.WEBHOOK, function(request, response){
         body = request.rawBody;
-        if(debug) {
-            console.log("[DEBUG] Recieved "+body);  
-        }
+        console.log("[INFO] Recieved "+body);  
         re = new RegExp(c.REGEX_MATCH_CHAT_MC);
         ignored = new RegExp(c.REGEX_IGNORED_CHAT);
         if(!ignored.test(body)) {
@@ -75,10 +69,10 @@ var ipaddress = process.env.OPENSHIFT_NODEJS_IP || process.env.IP || "127.0.0.1"
 var serverport = process.env.OPENSHIFT_NODEJS_PORT || process.env.PORT || c.PORT;
 if (process.env.OPENSHIFT_NODEJS_IP !== undefined) {
     http.listen( serverport, ipaddress, function() {
-        console.log("[DEBUG] Bot listening on *:" + serverport);
+        console.log("[INFO] Bot listening on *:" + serverport);
     });
 } else {
     http.listen( serverport, function() {
-        console.log("[DEBUG] Bot listening on *:" + c.PORT);
+        console.log("[INFO] Bot listening on *:" + c.PORT);
     });
 }
