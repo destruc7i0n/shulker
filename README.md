@@ -8,11 +8,12 @@
 ## Example
 ![discord-irc](http://i.giphy.com/6yj4FRw3XZt6M.gif)
 
+## Installation and usage
+Clone repository, edit ```config.json``` and then,
 ```bash
 In the repository folder:
 $ npm install
-$ npm run build # Transpile ES6 to ES5 using Babel
-$ npm start -- --config /path/to/config.json # Note the extra double dash
+$ npm start
 ```
 
 by destruc7i0n
