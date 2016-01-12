@@ -64,7 +64,7 @@ $ npm test
 * Ability to post messages to Discord on behalf of Discord users, rather than using a bot user (hopefully after the official API is released)
 * 
 
-### Thanks
+## Thanks
 [hydrabolt](https://github.com/hydrabolt) for discord.js
 
 ## License
