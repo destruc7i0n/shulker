@@ -38,16 +38,16 @@ You can also easily Deploy to Heroku or Bluemix.
 ### Configuration
 ```js
 {
-    "PORT": 8000, # Port you want to run the webserver for the hook on
-    "DISCORD_EMAIL": "example@example.com", # discord email
-    "DISCORD_PASSWORD": "password123", # discord password
-    "DISCORD_CHANNEL": "general", # channel for discord bot
-    "MINECRAFT_SERVER_RCON_IP": "example.com", # minecraft server ip (make sure you have enabled rcon)
-    "MINECRAFT_SERVER_RCON_PORT": <1-65535>, # minecraft server rcon port 
-    "MINECRAFT_SERVER_RCON_PASSWORD": "<your password>", # minecraft server rcon password
-    "WEBHOOK": "/minecraft/hook", # web hook, where to send the log to
-    "REGEX_MATCH_CHAT_MC": "\\[Server thread/INFO\\]: <(.*)> (.*)", # what to match for chat (best to leave as default)
-    "REGEX_IGNORED_CHAT": "packets too frequently", # what to ignore, you can put any regex for swear words for example and it will be ignored
+    "PORT": 8000, /* Port you want to run the webserver for the hook on */
+    "DISCORD_EMAIL": "example@example.com", /* discord email */
+    "DISCORD_PASSWORD": "password123", /* discord password */
+    "DISCORD_CHANNEL": "general", /* channel for discord bot */
+    "MINECRAFT_SERVER_RCON_IP": "example.com", /* minecraft server ip (make sure you have enabled rcon) */
+    "MINECRAFT_SERVER_RCON_PORT": <1-65535>, /* minecraft server rcon port */
+    "MINECRAFT_SERVER_RCON_PASSWORD": "<your password>", /* minecraft server rcon password */
+    "WEBHOOK": "/minecraft/hook", /* web hook, where to send the log to */
+    "REGEX_MATCH_CHAT_MC": "\\[Server thread/INFO\\]: <(.*)> (.*)", /* what to match for chat (best to leave as default) */
+    "REGEX_IGNORED_CHAT": "packets too frequently", /* what to ignore, you can put any regex for swear words for example and it will */ be ignored
     "DEBUG": false # dev debugging
 }
 ```
