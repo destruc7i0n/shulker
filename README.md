@@ -35,7 +35,7 @@ You can also easily Deploy to Heroku or Bluemix.
 [![Deploy to Bluemix](https://bluemix.net/deploy/button.png)](https://bluemix.net/deploy?repository=https://github.com/destruc7i0n/shulker)
 
 
-### Default configuration
+### Configuration
 ```js
 {
     "PORT": 8000, # Port you want to run the webserver for the hook on
