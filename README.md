@@ -29,9 +29,11 @@ In the repository folder:
 $ npm install
 $ npm start
 ```
-You can also easily Deploy to Heroku.
+You can also easily Deploy to Heroku or Bluemix.
 
 [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
+[![Deploy to Bluemix](https://bluemix.net/deploy/button.png)](https://bluemix.net/deploy?repository=https://github.com/destruc7i0n/shulker)
+
 
 ### Default configuration
 ```js
