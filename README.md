@@ -3,7 +3,7 @@
 [![Build Status](https://david-dm.org/destruc7i0n/shulker.svg)](https://david-dm.org/destruc7i0n/shulker)
 [![Build Status](https://travis-ci.org/destruc7i0n/shulker.svg?branch=master)](https://travis-ci.org/destruc7i0n/shulker)
 
-> Connects [Discord](https://discordapp.com/) and [Minecraft](https://minecraft.net) Servers by sending messages back and forth.
+> Connects [Discord](https://discordapp.com/) and [Minecraft](https://minecraft.net) Servers by sending messages back and forth without any mods or plugins.
 
 ## Example
 ![discord-irc](http://i.giphy.com/6yj4FRw3XZt6M.gif)
@@ -62,3 +62,8 @@ $ npm test
 ## License
 
 ISC. See `LICENSE`.
+
+## Upcoming
+* A "merge accounts" function to allow Minecraft players to associate their Discord accounts with their Minecraft accounts so that usernames are accurate
+* Ability to post messages to Discord on behalf of Discord users, rather than using a bot user (hopefully after the official API is released)
+
