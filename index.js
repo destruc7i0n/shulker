@@ -7,7 +7,7 @@ var app = express();
 var http = require("http").Server(app); 
 var c = require("./config.json");
 var debug = c.DEBUG;
-var d2m = new Discord.Client();
+var shulker = new Discord.Client();
 
 var client = new Rcon(c.MINECRAFT_SERVER_RCON_IP, c.MINECRAFT_SERVER_RCON_PORT, c.MINECRAFT_SERVER_RCON_PASSWORD);
 
@@ -36,8 +36,8 @@ app.use(function(request, response, next) {
   });
 });
 
-d2m.on("ready", function() {
-    var channel = d2m.channels.get("name", c.DISCORD_CHANNEL).id; 
+shulker.on("ready", function() {
+    var channel = shulker.channels.get("name", c.DISCORD_CHANNEL).id; 
     app.post(c.WEBHOOK, function(request, response){
         body = request.rawBody;
         console.log("[INFO] Recieved "+body);  
@@ -50,20 +50,20 @@ d2m.on("ready", function() {
                 console.log("[DEBUG] Text: "+bodymatch[2]);
             }
             message = "**"+bodymatch[1]+"**: "+bodymatch[2];
-            d2m.channels.get("id", channel).sendMessage(message);
+            shulker.channels.get("id", channel).sendMessage(message);
         }
         response.send("");
     });
 });
 
-d2m.on("message", function (message) {
-    if(message.author.id !== d2m.user.id) {
+shulker.on("message", function (message) {
+    if(message.author.id !== shulker.user.id) {
         data = { text: "<"+message.author.username+"> "+message.content };
         client.send('tellraw @a ["",'+JSON.stringify(data)+']');
     }
 });
 
-d2m.login(c.DISCORD_EMAIL, c.DISCORD_PASSWORD);
+shulker.login(c.DISCORD_EMAIL, c.DISCORD_PASSWORD);
 
 var ipaddress = process.env.OPENSHIFT_NODEJS_IP || process.env.IP || "127.0.0.1";
 var serverport = process.env.OPENSHIFT_NODEJS_PORT || process.env.PORT || c.PORT;
