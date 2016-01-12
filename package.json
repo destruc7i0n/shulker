@@ -4,6 +4,7 @@
   "description": "A Discord to Minecraft Chat Gateway",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "lint": "jshint *.js",
     "test": "npm run lint"
   },
