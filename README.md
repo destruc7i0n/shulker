@@ -9,7 +9,7 @@
 ![discord-irc](http://i.giphy.com/6yj4FRw3XZt6M.gif)
 
 ## Installation and usage
-Clone repository, edit ```config.json``` and then,
+Clone repository, edit ```config.json``` and change any options, and then,
 ```bash
 In the repository folder:
 $ npm install
