@@ -29,6 +29,9 @@ In the repository folder:
 $ npm install
 $ npm start
 ```
+You can also easily Deploy to Heroku.
+
+[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
 
 ### Default configuration
 ```js
