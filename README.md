@@ -7,7 +7,7 @@
 > Connects [Discord](https://discordapp.com/) and [Minecraft](https://minecraft.net) Servers by sending messages back and forth without any mods or plugins.
 
 ## In Action
-![discord-irc](http://i.giphy.com/6yj4FRw3XZt6M.gif)
+![discord-irc](http://s.thedestruc7i0n.ca/p/I5anbg.gif)
 
 ## Installation and usage
 
