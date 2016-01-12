@@ -48,7 +48,7 @@ You can also easily Deploy to Heroku or Bluemix.
     "WEBHOOK": "/minecraft/hook", /* web hook, where to send the log to */
     "REGEX_MATCH_CHAT_MC": "\\[Server thread/INFO\\]: <(.*)> (.*)", /* what to match for chat (best to leave as default) */
     "REGEX_IGNORED_CHAT": "packets too frequently", /* what to ignore, you can put any regex for swear words for example and it will */ be ignored
-    "DEBUG": false # dev debugging
+    "DEBUG": false /* dev debugging */
 }
 ```
 
