@@ -47,7 +47,7 @@ You can also easily Deploy to Heroku or Bluemix.
     "MINECRAFT_SERVER_RCON_PASSWORD": "<your password>", /* minecraft server rcon password */
     "WEBHOOK": "/minecraft/hook", /* web hook, where to send the log to */
     "REGEX_MATCH_CHAT_MC": "\\[Server thread/INFO\\]: <(.*)> (.*)", /* what to match for chat (best to leave as default) */
-    "REGEX_IGNORED_CHAT": "packets too frequently", /* what to ignore, you can put any regex for swear words for example and it will */ be ignored
+    "REGEX_IGNORED_CHAT": "packets too frequently", /* what to ignore, you can put any regex for swear words for example and it will  be ignored */
     "DEBUG": false /* dev debugging */
 }
 ```
@@ -62,6 +62,7 @@ $ npm test
 ## Upcoming
 * A "merge accounts" function to allow Minecraft players to associate their Discord accounts with their Minecraft accounts so that usernames are accurate
 * Ability to post messages to Discord on behalf of Discord users, rather than using a bot user (hopefully after the official API is released)
+* 
 
 ## Thanks
 * [hydrabolt](https://github.com/hydrabolt) for discord.js
