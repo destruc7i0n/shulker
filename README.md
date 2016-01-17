@@ -11,17 +11,13 @@
 
 ## Installation and usage
 
-In your Minecraft server.properties, make sure you have:
+This branch can use rcon or it will use the player to chat, set in ```config.json``` (see below). This also uses a player instead of a tail command.
+
+If you use RCON, set in your Minecraft server.properties:
 ```
 enable-rcon=true
 rcon.password=<your password>
 rcon.port=<1-65535>
-```
-
-Run the following on your server hosting (in a screen, and make sure to replace your URL and your log directory location):
-
-``` sh
-tail -F /PATH_TO_MINECRAFT_INSTALL/logs/latest.log | grep --line-buffered ": <" | while read x ; do echo -ne $x | curl -X POST -d @- https://YOUR_URL/minecraft/hook ; done
 ```
 
 Clone repository onto a server, edit ```config.json``` (see below for more info) and change any options, and then, in the repository folder:
@@ -38,17 +34,24 @@ You can also easily Deploy to Heroku or Bluemix.
 ### Configuration
 ```js
 {
-    "PORT": 8000, /* Port you want to run the webserver for the hook on */
-    "DISCORD_EMAIL": "example@example.com", /* discord email */
-    "DISCORD_PASSWORD": "password123", /* discord password */
-    "DISCORD_CHANNEL": "general", /* channel for discord bot */
-    "MINECRAFT_SERVER_RCON_IP": "example.com", /* minecraft server ip (make sure you have enabled rcon) */
-    "MINECRAFT_SERVER_RCON_PORT": <1-65535>, /* minecraft server rcon port */
-    "MINECRAFT_SERVER_RCON_PASSWORD": "<your password>", /* minecraft server rcon password */
-    "WEBHOOK": "/minecraft/hook", /* web hook, where to send the log to */
-    "REGEX_MATCH_CHAT_MC": "\\[Server thread/INFO\\]: <(.*)> (.*)", /* what to match for chat (best to leave as default) */
-    "REGEX_IGNORED_CHAT": "packets too frequently", /* what to ignore, you can put any regex for swear words for example and it will  be ignored */
-    "DEBUG": false /* dev debugging */
+    "DISCORD_EMAIL": "mail@example.com", /* discord email */
+    "DISCORD_PASSWORD": "example", /* discord password */
+    "DISCORD_CHANNEL": "general", /* discord channel */
+    
+    "MINECRAFT_USERNAME": "searge@gmail.com", /* mc username */
+    "MINECRAFT_USER_PASSWORD": "seargerules", /* mc password */
+    
+    "MINECRAFT_SERVER_IP": "example.com", /* server ip */
+    "MINECRAFT_SERVER_PORT": 25565, /* server port */
+    
+    "USE_RCON": false, /* want to use rcon? set the below if so */
+    "MINECRAFT_SERVER_RCON_IP": "example.com", /* rcon ip */
+    "MINECRAFT_SERVER_RCON_PORT": 25575, /* rcon port */
+    "MINECRAFT_SERVER_RCON_PASSWORD": "password", /* rcon pass */
+   
+    "REGEX_IGNORED_CHAT": "packets too frequently", /* ignored */
+    
+    "DEBUG": false /* for dev */
 }
 ```
 
