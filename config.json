@@ -1,13 +1,20 @@
 {
-    "PORT": 8000,
-    "DISCORD_EMAIL": "example@example.com",
-    "DISCORD_PASSWORD": "password123",
+    "DISCORD_EMAIL": "mail@example.com",
+    "DISCORD_PASSWORD": "example",
     "DISCORD_CHANNEL": "general",
+    
+    "MINECRAFT_USERNAME": "searge@gmail.com",
+    "MINECRAFT_USER_PASSWORD": "seargerules",
+    
+    "MINECRAFT_SERVER_IP": "example.com",    
+    "MINECRAFT_SERVER_PORT": 25565,
+    
+    "USE_RCON": false,
     "MINECRAFT_SERVER_RCON_IP": "example.com",
     "MINECRAFT_SERVER_RCON_PORT": 25575,
     "MINECRAFT_SERVER_RCON_PASSWORD": "password",
-    "WEBHOOK": "/minecraft/hook",
-    "REGEX_MATCH_CHAT_MC": "\\[Server thread/INFO\\]: <(.*)> (.*)",
+   
     "REGEX_IGNORED_CHAT": "packets too frequently",
+    
     "DEBUG": false
 }
