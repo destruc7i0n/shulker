@@ -2,77 +2,73 @@
 
 var Discord = require("discord.js");
 var Rcon = require("rcon");
-var express = require("express");
-var app = express(); 
-var http = require("http").Server(app); 
+var mineflayer = require("mineflayer");
 var c = require("./config.json");
 var debug = c.DEBUG;
 var shulker = new Discord.Client();
 
-var client = new Rcon(c.MINECRAFT_SERVER_RCON_IP, c.MINECRAFT_SERVER_RCON_PORT, c.MINECRAFT_SERVER_RCON_PASSWORD);
+var channel;
 
-client.on("auth", function() {
-    console.log("[INFO] Authenticated with "+c.MINECRAFT_SERVER_RCON_IP+":"+c.MINECRAFT_SERVER_RCON_PORT);
-}).on("response", function(str) {
-    if(debug && str) {
-        console.log("[DEBUG] Got response: " + str);
-    }
-}).on("end", function() {
-    console.log("[INFO] Rcon closed!");
-});
+if(c.USE_RCON) {
+    var client = new Rcon(c.MINECRAFT_SERVER_RCON_IP, c.MINECRAFT_SERVER_RCON_PORT, c.MINECRAFT_SERVER_RCON_PASSWORD);
 
-client.connect();
+    client.on("auth", function() {
+        console.log("[INFO] Authenticated with "+c.MINECRAFT_SERVER_RCON_IP+":"+c.MINECRAFT_SERVER_RCON_PORT);
+    }).on("response", function(str) {
+        if(debug && str) {
+            console.log("[DEBUG] Got response: " + str);
+        }
+    }).on("end", function() {
+        console.log("[INFO] Rcon closed!");
+    });
 
-app.use(function(request, response, next) {
-  request.rawBody = "";
-  request.setEncoding("utf8");
+    client.connect();
+}
 
-  request.on("data", function(chunk) { 
-      request.rawBody += chunk;
-  });
-
-  request.on("end", function() {
-      next();
-  });
+var bot = mineflayer.createBot({
+    host: c.MINECRAFT_SERVER_IP,
+    port: c.MINECRAFT_SERVER_PORT,       
+    username: c.MINECRAFT_USERNAME, 
+    password: c.MINECRAFT_USER_PASSWORD,          
 });
 
 shulker.on("ready", function() {
-    var channel = shulker.channels.get("name", c.DISCORD_CHANNEL).id; 
-    app.post(c.WEBHOOK, function(request, response){
-        body = request.rawBody;
-        console.log("[INFO] Recieved "+body);  
-        re = new RegExp(c.REGEX_MATCH_CHAT_MC);
-        ignored = new RegExp(c.REGEX_IGNORED_CHAT);
-        if(!ignored.test(body)) {
-            bodymatch = body.match(re);
-            if(debug) {
-                console.log("[DEBUG] Username: "+bodymatch[1]);
-                console.log("[DEBUG] Text: "+bodymatch[2]);
-            }
-            message = "**"+bodymatch[1]+"**: "+bodymatch[2];
-            shulker.channels.get("id", channel).sendMessage(message);
-        }
-        response.send("");
-    });
+    channel = shulker.channels.get("name", c.DISCORD_CHANNEL).id; 
 });
+
+bot.on("chat", function(username, message) { 
+    ignored = new RegExp(c.REGEX_IGNORED_CHAT);
+    if(!ignored.test(message)) {
+        if(debug) {
+            console.log("[DEBUG] Username: "+username);
+            console.log("[DEBUG] Text: "+message);
+        }
+        message = "**"+username+"**: "+message;
+        shulker.channels.get("id", channel).sendMessage(message);
+    }
+});
+
+bot.on("login", function() {
+    console.log("[INFO] Logged user onto "+c.MINECRAFT_SERVER_IP+":"+c.MINECRAFT_SERVER_PORT);
+});
+
+bot.on("kicked", function(reason) {
+    console.log("[INFO] Kicked "+reason);
+})
+
+bot.on("end", function() {
+    console.log("[INFO] Logged out of "+c.MINECRAFT_SERVER_IP+":"+c.MINECRAFT_SERVER_PORT)
+})
 
 shulker.on("message", function (message) {
     if(message.author.id !== shulker.user.id) {
-        data = { text: "<"+message.author.username+"> "+message.content };
-        client.send('tellraw @a ["",'+JSON.stringify(data)+']');
+        if(c.USE_RCON) {
+            data = { text: "<"+message.author.username+"> "+message.content };
+            client.send('tellraw @a ["",'+JSON.stringify(data)+']');
+        } else {
+            bot.chat(message.content);
+        }
     }
 });
 
 shulker.login(c.DISCORD_EMAIL, c.DISCORD_PASSWORD);
-
-var ipaddress = process.env.OPENSHIFT_NODEJS_IP || process.env.IP || "127.0.0.1";
-var serverport = process.env.OPENSHIFT_NODEJS_PORT || process.env.PORT || c.PORT;
-if (process.env.OPENSHIFT_NODEJS_IP !== undefined) {
-    http.listen( serverport, ipaddress, function() {
-        console.log("[INFO] Bot listening on *:" + serverport);
-    });
-} else {
-    http.listen( serverport, function() {
-        console.log("[INFO] Bot listening on *:" + c.PORT);
-    });
-}
