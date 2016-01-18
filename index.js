@@ -1,4 +1,5 @@
 /*jslint bitwise: true, node: true */
+'use strict';
 
 var Discord = require("discord.js");
 var Rcon = require("rcon");
@@ -39,17 +40,17 @@ app.use(function(request, response, next) {
 shulker.on("ready", function() {
     var channel = shulker.channels.get("name", c.DISCORD_CHANNEL).id; 
     app.post(c.WEBHOOK, function(request, response){
-        body = request.rawBody;
-        console.log("[INFO] Recieved "+body);  
-        re = new RegExp(c.REGEX_MATCH_CHAT_MC);
-        ignored = new RegExp(c.REGEX_IGNORED_CHAT);
+        var body = request.rawBody;
+        console.log("[INFO] Recieved "+body);
+        var re = new RegExp(c.REGEX_MATCH_CHAT_MC);
+        var ignored = new RegExp(c.REGEX_IGNORED_CHAT);
         if(!ignored.test(body)) {
-            bodymatch = body.match(re);
+            var bodymatch = body.match(re);
             if(debug) {
                 console.log("[DEBUG] Username: "+bodymatch[1]);
                 console.log("[DEBUG] Text: "+bodymatch[2]);
             }
-            message = "**"+bodymatch[1]+"**: "+bodymatch[2];
+            var message = "**"+bodymatch[1]+"**: "+bodymatch[2];
             shulker.channels.get("id", channel).sendMessage(message);
         }
         response.send("");
@@ -58,7 +59,7 @@ shulker.on("ready", function() {
 
 shulker.on("message", function (message) {
     if(message.author.id !== shulker.user.id) {
-        data = { text: "<"+message.author.username+"> "+message.content };
+        var data = { text: "<"+message.author.username+"> "+message.content };
         client.send('tellraw @a ["",'+JSON.stringify(data)+']');
     }
 });
