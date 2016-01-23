@@ -11,6 +11,7 @@ var debug = c.DEBUG;
 var shulker = new Discord.Client();
 
 var client = new Rcon(c.MINECRAFT_SERVER_RCON_IP, c.MINECRAFT_SERVER_RCON_PORT, c.MINECRAFT_SERVER_RCON_PASSWORD);
+var rconTimeout;
 
 client.on("auth", function() {
     console.log("[INFO] Authenticated with " + c.MINECRAFT_SERVER_RCON_IP + ":" + c.MINECRAFT_SERVER_RCON_PORT);
@@ -21,10 +22,13 @@ client.on("auth", function() {
 }).on("end", function() {
     console.log("[INFO] Rcon closed!");
 }).on("error", function() {
-    client.disconnect();
-    setTimeout(function() {
-        client.connect();
-    }, c.RCON_RECONNECT_DELAY * 1000);
+    if (typeof rconTimeout === 'undefined') {
+        client.disconnect();
+        rconTimeout = setTimeout(function() {
+            client.connect();
+            rconTimeout = undefined;
+        }, c.RCON_RECONNECT_DELAY * 1000);
+    }
 });
 
 client.connect();
