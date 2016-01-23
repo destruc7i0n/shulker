@@ -20,6 +20,11 @@ client.on("auth", function() {
     }
 }).on("end", function() {
     console.log("[INFO] Rcon closed!");
+}).on("error", function() {
+    client.disconnect();
+    setTimeout(function() {
+        client.connect();
+    }, 10000);
 });
 
 client.connect();
