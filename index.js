@@ -67,11 +67,13 @@ shulker.on("ready", function() {
 });
 
 shulker.on("message", function(message) {
-    if (message.author.id !== shulker.user.id) {
-        var data = {
-            text: "<" + message.author.username + "> " + message.content
-        };
-        client.send('tellraw @a ["",' + JSON.stringify(data) + ']');
+    if (message.channel.id === shulker.channels.get("name", c.DISCORD_CHANNEL).id) {
+        if (message.author.id !== shulker.user.id) {
+            var data = {
+                text: "<" + message.author.username + "> " + message.content
+            };
+            client.send('tellraw @a ["",' + JSON.stringify(data) + ']');
+        }
     }
 });
 
