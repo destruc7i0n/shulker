@@ -24,7 +24,7 @@ client.on("auth", function() {
     client.disconnect();
     setTimeout(function() {
         client.connect();
-    }, 10000);
+    }, c.RCON_RECONNECT_DELAY * 1000);
 });
 
 client.connect();
