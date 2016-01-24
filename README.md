@@ -69,6 +69,7 @@ If you have any suggestions or feature requests, feel free to add an issue and I
 ## Thanks
 * [hydrabolt](https://github.com/hydrabolt) for discord.js
 * [qrush](https://github.com/qrush) for the idea of this ([wither](https://github.com/qrush/wither))
+* [SecretOnline](https://github.com/secretonline) for Rcon reconnecting and for making it only send messages in specified channel 
 
 ## License
 
