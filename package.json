@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/destruc7i0n/shulker#readme",
   "dependencies": {
-    "discord.js": "^5.3.2",
+    "discord.js": "^6.1.0",
     "express": "^4.13.3",
     "rcon": "^1.0.1"
   },
