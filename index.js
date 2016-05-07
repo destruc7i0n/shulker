@@ -70,7 +70,7 @@ shulker.on("message", function(message) {
     if (message.channel.id === shulker.channels.get("name", c.DISCORD_CHANNEL).id) {
         if (message.author.id !== shulker.user.id) {
             var data = {
-                text: "<" + message.author.username + "> " + message.content
+                text: "<" + message.author.username + "> " + message.cleanContent
             };
             client.send('tellraw @a ["",' + JSON.stringify(data) + ']');
         }
