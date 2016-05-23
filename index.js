@@ -50,7 +50,7 @@ shulker.on("ready", function() {
     var channel = shulker.channels.get("name", c.DISCORD_CHANNEL).id;
     app.post(c.WEBHOOK, function(request, response) {
         var body = request.rawBody;
-        console.log("[INFO] Recieved " + body);
+        console.log("[INFO] Received " + body);
         var re = new RegExp(c.REGEX_MATCH_CHAT_MC);
         var ignored = new RegExp(c.REGEX_IGNORED_CHAT);
         if (!ignored.test(body)) {
@@ -77,7 +77,7 @@ shulker.on("message", function(message) {
     }
 });
 
-shulker.login(c.DISCORD_EMAIL, c.DISCORD_PASSWORD);
+shulker.loginWithToken(c.DISCORD_TOKEN);
 
 var ipaddress = process.env.OPENSHIFT_NODEJS_IP || process.env.IP || "127.0.0.1";
 var serverport = process.env.OPENSHIFT_NODEJS_PORT || process.env.PORT || c.PORT;
