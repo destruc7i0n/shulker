@@ -39,8 +39,7 @@ You can also easily Deploy to Heroku or Bluemix.
 ```js
 {
     "PORT": 8000, /* Port you want to run the webserver for the hook on */
-    "DISCORD_EMAIL": "example@example.com", /* discord email */
-    "DISCORD_PASSWORD": "password123", /* discord password */
+    "DISCORD_TOKEN": "TOKEN_HERE", /* discord token */
     "DISCORD_CHANNEL": "general", /* channel for discord bot */
     "MINECRAFT_SERVER_RCON_IP": "example.com", /* minecraft server ip (make sure you have enabled rcon) */
     "MINECRAFT_SERVER_RCON_PORT": <1-65535>, /* minecraft server rcon port */
@@ -52,6 +51,14 @@ You can also easily Deploy to Heroku or Bluemix.
 }
 ```
 
+### Application token
+
+1. Head over to the [applications page](https://discordapp.com/developers/applications/me#top) and create a new application
+2. Give your bot a name and hit "Create application"
+3. Click "Create a Bot User"
+4. After that, head over to `https://discordapp.com/oauth2/authorize?&client_id=CLIENT_ID&scope=bot` replacing `CLIENT_ID` with Client/Application ID under "App Details"
+5. Add your bot to a server and go back to the applications page
+6. Click "Reveal token" and copy the token to your config.json file
 
 ## Tests
 Run the tests with:
