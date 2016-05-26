@@ -21,7 +21,7 @@ rcon.port=<1-65535>
 Run the following on your server hosting (in a screen, and make sure to replace your URL and your log directory location):
 
 ``` sh
-tail -F /PATH_TO_MINECRAFT_INSTALL/logs/latest.log | grep --line-buffered ": <" | while read x ; do echo -ne $x | curl -X POST -d @- https://YOUR_URL/minecraft/hook ; done
+tail -F /PATH_TO_MINECRAFT_INSTALL/logs/latest.log | grep --line-buffered ": <" | while read x ; do echo -ne "$x" | curl -X POST -d @- https://YOUR_URL/minecraft/hook ; done
 ```
 
 Clone repository onto a server, edit ```config.json``` (see below for more info) and change any options, and then, in the repository folder:
