@@ -56,7 +56,7 @@ shulker.on("message", function(message) {
                 client.command('tellraw @a ["",' + JSON.stringify(data) + ']', function(err, resp) {
                     client.close(); // close the rcon connection
                 });
-            })
+            });
         }
     }
 });
