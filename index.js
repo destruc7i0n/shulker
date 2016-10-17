@@ -39,7 +39,7 @@ shulker.on("ready", function() {
                 console.log("[DEBUG] Text: " + bodymatch[2]);
             }
             var message = "`" + bodymatch[1].replace(/(\§[A-Z-a-z-0-9])/g, "") + "`:" + bodymatch[2];
-            shulker.channels.get("id", channel).sendMessage(message);
+            shulker.channels.get("name", channel).sendMessage(message);
         }
         response.send("");
     });
@@ -63,14 +63,9 @@ shulker.on("message", function(message) {
 
 shulker.loginWithToken(c.DISCORD_TOKEN);
 
-var ipaddress = process.env.OPENSHIFT_NODEJS_IP || process.env.IP || "127.0.0.1";
-var serverport = process.env.OPENSHIFT_NODEJS_PORT || process.env.PORT || c.PORT;
-if (process.env.OPENSHIFT_NODEJS_IP !== undefined) {
-    http.listen(serverport, ipaddress, function() {
-        console.log("[INFO] Bot listening on *:" + serverport);
-    });
-} else {
-    http.listen(serverport, function() {
-        console.log("[INFO] Bot listening on *:" + c.PORT);
-    });
-}
+var ipaddress = process.env.IP || "127.0.0.1";
+var serverport = process.env.PORT || c.PORT;
+
+http.listen(serverport, function() {
+    console.log("[INFO] Bot listening on *:" + serverport);
+});
