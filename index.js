@@ -39,14 +39,14 @@ shulker.on("ready", function() {
                 console.log("[DEBUG] Text: " + bodymatch[2]);
             }
             var message = "`" + bodymatch[1].replace(/(\§[A-Z-a-z-0-9])/g, "") + "`:" + bodymatch[2];
-            shulker.channels.get("id", channel).sendMessage(message);
+            shulker.channels.get(channel).sendMessage(message);
         }
         response.send("");
     });
 });
 
 shulker.on("message", function(message) {
-    if (message.channel.id === shulker.channels.get("name", c.DISCORD_CHANNEL).id) {
+    if (message.channel.id === shulker.channels.get(c.DISCORD_CHANNEL_ID).id) {
         if (message.author.id !== shulker.user.id) {
             var data = {
                 text: "<" + message.author.username + "> " + message.cleanContent
@@ -61,7 +61,7 @@ shulker.on("message", function(message) {
     }
 });
 
-shulker.loginWithToken(c.DISCORD_TOKEN);
+shulker.login(c.DISCORD_TOKEN);
 
 var ipaddress = process.env.OPENSHIFT_NODEJS_IP || process.env.IP || "127.0.0.1";
 var serverport = process.env.OPENSHIFT_NODEJS_PORT || process.env.PORT || c.PORT;
