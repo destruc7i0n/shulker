@@ -1,7 +1,6 @@
 # shulker
 
 [![Build Status](https://david-dm.org/destruc7i0n/shulker.svg)](https://david-dm.org/destruc7i0n/shulker)
-[![Build Status](https://travis-ci.org/destruc7i0n/shulker.svg?branch=master)](https://travis-ci.org/destruc7i0n/shulker)
 [![Circle CI](https://circleci.com/gh/destruc7i0n/shulker.svg?style=shield)](https://circleci.com/gh/destruc7i0n/shulker)
 
 > Connects [Discord](https://discordapp.com/) and [Minecraft](https://minecraft.net) Servers by sending messages back and forth without any mods or plugins.
@@ -11,17 +10,11 @@
 
 ## Installation and usage
 
-In your Minecraft server.properties, make sure you have:
+In your Minecraft server.properties, make sure you have and restart the server:
 ```
 enable-rcon=true
 rcon.password=<your password>
 rcon.port=<1-65535>
-```
-
-Run the following on your server hosting (in a screen/tmux session or background process, and make sure to replace your URL and your log directory location):
-
-``` sh
-tail -F /PATH_TO_MINECRAFT_INSTALL/logs/latest.log | grep --line-buffered ": <" | while read x ; do echo -ne $x | curl -X POST -d @- https://YOUR_URL/minecraft/hook ; done
 ```
 
 Clone repository onto a server, edit ```config.json``` (see below for more info) and change any options, and then, in the repository folder:
@@ -29,7 +22,14 @@ Clone repository onto a server, edit ```config.json``` (see below for more info)
 $ npm install
 $ npm start
 ```
-You can also easily Deploy to Heroku or Bluemix.
+
+Run the following on your server hosting (in a screen/tmux session or background process, make sure to replace your `YOUR_URL` with whatever URL you're using (`localhost:8000` if running on the same server and default config) and `PATH_TO_MINECRAFT_INSTALL` with the path to the Minecraft server installation, such as `/usr/home/minecraft_server/`):
+
+``` sh
+tail -F /PATH_TO_MINECRAFT_INSTALL/logs/latest.log | grep --line-buffered ": <" | while read x ; do echo -ne $x | curl -X POST -d @- http://YOUR_URL/minecraft/hook ; done
+```
+
+You can also easily Deploy to Heroku or Bluemix, just be sure to edit `YOUR_URL` in the command to match accordingly.
 
 [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
 [![Deploy to Bluemix](https://bluemix.net/deploy/button.png)](https://bluemix.net/deploy?repository=https://github.com/destruc7i0n/shulker)
@@ -59,8 +59,7 @@ $ npm test
 ```
 
 ## Upcoming
-* A "merge accounts" function to allow Minecraft players to associate their Discord accounts with their Minecraft accounts so that usernames are accurate
-* Ability to post messages to Discord on behalf of Discord users, rather than using a bot user (hopefully after the official API is released)
+None
 
 ## Suggestions
 If you have any suggestions or feature requests, feel free to add an issue and I will take a look and possibly add it to the "Upcoming" section!
