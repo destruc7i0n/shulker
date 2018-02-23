@@ -13,6 +13,14 @@ console.log("[INFO] Using configuration file:", cfile);
 
 var c = require(cfile);
 
+function makeTellraw(message) {
+    // make a tellraw string by formatting the configured template with the given message
+    return c.MINECRAFT_TELLRAW_TEMPLATE
+        .replace("%username%", message.author.username)
+        .replace("%discriminator%", message.author.discriminator)
+        .replace("%message%", message.cleanContent);
+}
+
 var debug = c.DEBUG;
 var shulker = new Discord.Client();
 
@@ -54,13 +62,9 @@ shulker.on("ready", function() {
 shulker.on("message", function(message) {
     if (message.channel.id === shulker.channels.get(c.DISCORD_CHANNEL_ID).id) {
         if (message.author.id !== shulker.user.id) {
-            var data = [
-                {color: "gray", text: "[" + message.author.username + "#" + message.author.discriminator + "] "},
-                {color: "white", text: message.cleanContent}
-            ];
             var client = new Rcon(c.MINECRAFT_SERVER_RCON_IP, c.MINECRAFT_SERVER_RCON_PORT); // create rcon client
             client.auth(c.MINECRAFT_SERVER_RCON_PASSWORD, function(err){ // only authenticate when needed
-                client.command('tellraw @a ["",' + JSON.stringify(data) + ']', function(err, resp) {
+                client.command('tellraw @a ' + makeTellraw(message), function(err, resp) {
                     client.close(); // close the rcon connection
                 });
             });
