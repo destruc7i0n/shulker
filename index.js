@@ -6,7 +6,13 @@ var Rcon = require("./lib/rcon.js");
 var express = require("express");
 var app = express();
 var http = require("http").Server(app);
-var c = require("./config.json");
+
+var cfile = (process.argv.length > 2) ? process.argv[2] : "./config.json"
+
+console.log("[INFO] Using configuration file:", cfile);
+
+var c = require(cfile);
+
 var debug = c.DEBUG;
 var shulker = new Discord.Client();
 
