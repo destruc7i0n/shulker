@@ -41,6 +41,7 @@ You can also easily Deploy to Heroku or Bluemix, just be sure to edit `YOUR_URL`
     "MINECRAFT_SERVER_RCON_IP": "example.com", /* Minecraft server IP (make sure you have enabled rcon) */
     "MINECRAFT_SERVER_RCON_PORT": <1-65535>, /* Minecraft server rcon port */
     "MINECRAFT_SERVER_RCON_PASSWORD": "<your password>", /* Minecraft server rcon password */
+    "MINECRAFT_TELLRAW_TEMPLATE": "[{\"color\": \"gray\", \"text\": \"[%username%#%discriminator%] \"},{\"color\": \"white\", \"text\": \"%message%\"}]", /* Tellraw command format to display in-game */
     "WEBHOOK": "/minecraft/hook", /* Web hook, where to send the log to */
     "REGEX_MATCH_CHAT_MC": "\\[Server thread/INFO\\]: <(.*)> (.*)", /* What to match for chat (best to leave as default) */
     "REGEX_IGNORED_CHAT": "packets too frequently", /* What to ignore, you can put any regex for swear words for example and it will  be ignored */
