@@ -2,6 +2,7 @@
     "PORT": 8000,
     "DISCORD_TOKEN": "TOKEN_HERE",
     "DISCORD_CHANNEL_ID": "general",
+    "DISCORD_MESSAGE_TEMPLATE": "`%username%`:%message%",
     "MINECRAFT_SERVER_RCON_IP": "example.com",
     "MINECRAFT_SERVER_RCON_PORT": 25575,
     "MINECRAFT_SERVER_RCON_PASSWORD": "password",
