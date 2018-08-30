@@ -6,7 +6,28 @@ var Rcon = require("./lib/rcon.js");
 var express = require("express");
 var app = express();
 var http = require("http").Server(app);
-var c = require("./config.json");
+
+var cfile = (process.argv.length > 2) ? process.argv[2] : "./config.json"
+
+console.log("[INFO] Using configuration file:", cfile);
+
+var c = require(cfile);
+
+function makeDiscordMessage(bodymatch) {
+    // make a discord message string by formatting the configured template with the given parameters
+    return c.DISCORD_MESSAGE_TEMPLATE
+        .replace("%username%", bodymatch[1].replace(/(\§[A-Z-a-z-0-9])/g, ""))
+        .replace("%message%", bodymatch[2]);
+}
+
+function makeMinecraftTellraw(message) {
+    // same as the discord side but with discord message parameters
+    return c.MINECRAFT_TELLRAW_TEMPLATE
+        .replace("%username%", message.author.username)
+        .replace("%discriminator%", message.author.discriminator)
+        .replace("%message%", message.cleanContent);
+}
+
 var debug = c.DEBUG;
 var shulker = new Discord.Client();
 
@@ -38,8 +59,7 @@ shulker.on("ready", function() {
                 console.log("[DEBUG] Username: " + bodymatch[1]);
                 console.log("[DEBUG] Text: " + bodymatch[2]);
             }
-            var message = "`" + bodymatch[1].replace(/(\§[A-Z-a-z-0-9])/g, "") + "`:" + bodymatch[2];
-            shulker.channels.get(channel).sendMessage(message);
+            shulker.channels.get(channel).sendMessage(makeDiscordMessage(bodymatch));
         }
         response.send("");
     });
@@ -48,12 +68,9 @@ shulker.on("ready", function() {
 shulker.on("message", function(message) {
     if (message.channel.id === shulker.channels.get(c.DISCORD_CHANNEL_ID).id) {
         if (message.author.id !== shulker.user.id) {
-            var data = {
-                text: "<" + message.author.username + "> " + message.cleanContent
-            };
             var client = new Rcon(c.MINECRAFT_SERVER_RCON_IP, c.MINECRAFT_SERVER_RCON_PORT); // create rcon client
             client.auth(c.MINECRAFT_SERVER_RCON_PASSWORD, function(err){ // only authenticate when needed
-                client.command('tellraw @a ["",' + JSON.stringify(data) + ']', function(err, resp) {
+                client.command('tellraw @a ' + makeMinecraftTellraw(message), function(err, resp) {
                     client.close(); // close the rcon connection
                 });
             });
