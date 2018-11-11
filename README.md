@@ -7,7 +7,14 @@
 
 ## Installation and usage
 
-In your Minecraft server.properties, make sure you have and restart the server:
+Create a Discord bot here: https://discordapp.com/developers/applications/me
+
+Then, add the bot to your Discord server using the following link, replace the Client ID with that of your bot.
+```
+https://discordapp.com/oauth2/authorize?client_id=<CLIENT ID>&scope=bot
+```
+
+In your Minecraft server.properties, make sure you have the following and restart the server:
 ```
 enable-rcon=true
 rcon.password=<your password>
@@ -16,30 +23,31 @@ rcon.port=<1-65535>
 
 Clone repository onto a server, edit ```config.json``` (see below for more info) and change any options, and then, in the repository folder:
 ```sh
-$ npm install
-$ npm start
+$ yarn
+$ yarn start
 ```
 
-Run the following on your server hosting (in a screen/tmux session or background process, make sure to replace your `YOUR_URL` with whatever URL you're using (`localhost:8000` if running on the same server and default config) and `PATH_TO_MINECRAFT_INSTALL` with the path to the Minecraft server installation, such as `/usr/home/minecraft_server/`):
+Run the following on your server hosting (in a screen/tmux session or background process, make sure to replace your `YOUR_URL` with whatever URL you're using (`localhost:8000` if running on the same server and default config) and `PATH_TO_MINECRAFT_SERVER_INSTALL` with the path to the Minecraft server installation, such as `/usr/home/minecraft_server/`):
 
 ``` sh
-tail -F /PATH_TO_MINECRAFT_INSTALL/logs/latest.log | grep --line-buffered ": <" | while read x ; do echo -ne $x | curl -X POST -d @- http://YOUR_URL/minecraft/hook ; done
+tail -F /PATH_TO_MINECRAFT_SERVER_INSTALL/logs/latest.log | grep --line-buffered ": <" | while read x ; do echo -ne $x | curl -X POST -d @- http://YOUR_URL/minecraft/hook ; done
 ```
 
-You can also easily Deploy to Heroku or Bluemix, just be sure to edit `YOUR_URL` in the command to match accordingly.
+You can also easily Deploy to Heroku and the like, just be sure to edit `YOUR_URL` in the command to match accordingly.
 
 [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
-[![Deploy to Bluemix](https://bluemix.net/deploy/button.png)](https://bluemix.net/deploy?repository=https://github.com/destruc7i0n/shulker)
 
 
 ### Configuration
 ```js
 {
     "PORT": 8000, /* Port you want to run the webserver for the hook on */
+    "USE_WEBHOOKS": true, /* If you want to use snazzy webhooks */
+    "WEBHOOK_URL": "DISCORD_WEBHOOK_URL_HERE", /* Be sure to create a webhook in the channel settings and place it here! */
     "DISCORD_TOKEN": "<12345>", /* Discord bot token. [Click here](https://discordapp.com/developers/applications/me) to create you application and add a bot to it. */
-    "DISCORD_CHANNEL_ID": "<12345>", /* Discord channel ID for for the discord bot. Enable developer mode in your Discord client, then right click channel and select "Copy ID". */
+    "DISCORD_CHANNEL_ID": "<channel>", /* Discord channel ID for for the discord bot. Enable developer mode in your Discord client, then right click channel and select "Copy ID". */
     "DISCORD_MESSAGE_TEMPLATE": "`%username%`:%message%", /* Message template to display in Discord */
-    "MINECRAFT_SERVER_RCON_IP": "example.com", /* Minecraft server IP (make sure you have enabled rcon) */
+    "MINECRAFT_SERVER_RCON_IP": "127.0.0.1", /* Minecraft server IP (make sure you have enabled rcon) */
     "MINECRAFT_SERVER_RCON_PORT": <1-65535>, /* Minecraft server rcon port */
     "MINECRAFT_SERVER_RCON_PASSWORD": "<your password>", /* Minecraft server rcon password */
     "MINECRAFT_TELLRAW_TEMPLATE": "[{\"color\": \"white\", \"text\": \"<%username%> %message%\"}]", /* Tellraw template to display in Minecraft */
@@ -48,13 +56,6 @@ You can also easily Deploy to Heroku or Bluemix, just be sure to edit `YOUR_URL`
     "REGEX_IGNORED_CHAT": "packets too frequently", /* What to ignore, you can put any regex for swear words for example and it will  be ignored */
     "DEBUG": false /* Dev debugging */
 }
-```
-
-
-## Tests
-Run the tests with:
-```bash
-$ npm test
 ```
 
 ## Upcoming
