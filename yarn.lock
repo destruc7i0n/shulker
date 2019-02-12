@@ -1703,6 +1703,11 @@ table@^4.0.3:
     slice-ansi "1.0.0"
     string-width "^2.1.1"
 
+tail@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/tail/-/tail-2.0.1.tgz#f4cd9d514512e77d0eb2aaacd5520d578fe20271"
+  integrity sha512-9vPPjlv63kuIHLKVR7T65ey3CeukjcWA3f/JnfPyFd1KPSqWMh3qWyz2M5T7osAYQNYlaYtddovJ/X27tL0w1w==
+
 text-table@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
