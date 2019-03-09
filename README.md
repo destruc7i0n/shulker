@@ -27,7 +27,7 @@ $ yarn
 $ yarn start
 ```
 
-If you are running this locally, check the `IS_LOCAL_FILE` flag and related options below. Otherwise, perform the following command: 
+If you are running this locally, check the `IS_LOCAL_FILE` flag and related options below. Otherwise, perform the following command:
 On your server hosting (in a screen/tmux session or background process, make sure to replace your `YOUR_URL` with whatever URL you're using (`localhost:8000` if running on the same server and default config) and `PATH_TO_MINECRAFT_SERVER_INSTALL` with the path to the Minecraft server installation, such as `/usr/home/minecraft_server/`):
 
 ``` sh
@@ -43,26 +43,29 @@ You can also easily Deploy to Heroku and the like, just be sure to edit `YOUR_UR
 ```js
 {
     "PORT": 8000, /* Port you want to run the webserver for the hook on */
-    
+
     "USE_WEBHOOKS": true, /* If you want to use snazzy webhooks */
     "WEBHOOK_URL": "DISCORD_WEBHOOK_URL_HERE", /* Be sure to create a webhook in the channel settings and place it here! */
     "DISCORD_TOKEN": "<12345>", /* Discord bot token. [Click here](https://discordapp.com/developers/applications/me) to create you application and add a bot to it. */
     "DISCORD_CHANNEL_ID": "<channel>", /* Discord channel ID for for the discord bot. Enable developer mode in your Discord client, then right click channel and select "Copy ID". */
     "DISCORD_MESSAGE_TEMPLATE": "`%username%`:%message%", /* Message template to display in Discord */
-    
+
     "MINECRAFT_SERVER_RCON_IP": "127.0.0.1", /* Minecraft server IP (make sure you have enabled rcon) */
     "MINECRAFT_SERVER_RCON_PORT": <1-65535>, /* Minecraft server rcon port */
     "MINECRAFT_SERVER_RCON_PASSWORD": "<your password>", /* Minecraft server rcon password */
     "MINECRAFT_TELLRAW_TEMPLATE": "[{\"color\": \"white\", \"text\": \"<%username%> %message%\"}]", /* Tellraw template to display in Minecraft */
-    
+
     "IS_LOCAL_FILE": false, /* should tail the local file, may be a little buggy. please report any you find */
     "LOCAL_FILE_PATH": "/usr/home/minecraft_server/logs/latest.log", /* the path to the local file if specified */
     "ALLOW_USER_MENTIONS": false, /* should replace @mentions with the mention in discord */
-    
+
     "WEBHOOK": "/minecraft/hook", /* Web hook, where to send the log to */
     "REGEX_MATCH_CHAT_MC": "\\[Server thread/INFO\\]: <(.*)> (.*)", /* What to match for chat (best to leave as default) */
     "REGEX_IGNORED_CHAT": "packets too frequently", /* What to ignore, you can put any regex for swear words for example and it will  be ignored */
-    "DEBUG": false /* Dev debugging */
+    "DEBUG": false, /* Dev debugging */
+
+    "SERVER_NAME" : "Shulker", /* The username used when displaying any server information in chat, e.g., Server - Shulker : Server message here*/
+    "SHOW_PLAYER_CONN_STAT" : false /* Shows player connection status in chat, e.g., Server - Shulker : TheMachine joined the game */
 }
 ```
 

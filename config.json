@@ -21,5 +21,8 @@
     "REGEX_MATCH_CHAT_MC": "\\[Server thread/INFO\\]: <([^>]*)> (.*)",
     "REGEX_IGNORED_CHAT": "packets too frequently",
     "RCON_RECONNECT_DELAY": 10,
-    "DEBUG": false
+    "DEBUG": false,
+
+    "SHOW_PLAYER_CONN_STAT" : false,
+    "SERVER_NAME" : "Shulker"
 }
