@@ -53,10 +53,17 @@ function makeDiscordMessage (username, message) {
 function makeDiscordWebhook (username, message) {
   message = replaceDiscordMentions(message)
 
+  var avatarURL = ''
+  if (username === c.SERVER_NAME + ' - Server') { // Use avatar for the server
+    avatarURL = `https://cdn6.aptoide.com/imgs/8/e/d/8ede957333544a11f75df4518b501bdb_icon.png?w=256`
+  } else { // Use avatar for player
+    avatarURL = `https://minotar.net/helm/${username}/256.png`
+  }
+
   return {
     username: username,
     content: message,
-    'avatar_url': `https://minotar.net/helm/${username}/256.png`
+    'avatar_url': avatarURL
   }
 }
 
@@ -111,12 +118,39 @@ function initApp () {
   }
 }
 
+function getWordAt (str, pos) {
+    // Perform type conversions.
+    str = String(str);
+    pos = Number(pos) >>> 0;
+
+    // Search for the word's beginning and end.
+    var left = str.slice(0, pos + 1).search(/\S+$/),
+      right = str.slice(pos).search(/\s/);
+
+    // The last word in the string is a special case.
+    if (right < 0) {
+      return str.slice(left);
+    }
+
+    // Return the word, using the located bounds to extract it from the string.
+    return str.slice(left, right + pos);
+}
+
 function watch (callback) {
   if (c.IS_LOCAL_FILE) {
     tail.on('line', function (data) {
       // ensure that this is a message
       if (data.indexOf(': <') !== -1) {
         callback(data)
+      } else if (c.SHOW_PLAYER_CONN_STAT && (data.indexOf('left the game') !== -1 || data.indexOf('joined the game') !== -1)){
+        // Get username of player that joined or left
+    	  var username = getWordAt(data, 33)
+        if (debug){
+          console.log('[Debug]', username + '\'s connection status changed')
+        }
+        // Change player username to server name
+    	  data = data.replace(username, "<" + c.SERVER_NAME + " - Server> " + username)
+    	  callback(data)
       }
     })
   } else {
