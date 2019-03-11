@@ -151,6 +151,15 @@ function watch (callback) {
         // Change player username to server name
     	  data = data.replace(username, "<" + c.SERVER_NAME + " - Server> " + username)
     	  callback(data)
+      } else if (c.SHOW_PLAYER_ACHV && data.indexOf('has just earned the achievement') !== -1){
+        // Get username of player that earned the achievement
+    	  var username = getWordAt(data, 33)
+        if (debug){
+          console.log('[Debug]', username + ' has earned an achievement')
+        }
+        // Change player username to server name
+    	  data = data.replace(username, "<" + c.SERVER_NAME + " - Server> " + username)
+    	  callback(data)
       }
     })
   } else {
