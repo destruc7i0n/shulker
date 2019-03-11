@@ -177,7 +177,7 @@ function parseLogLine(data){
     for (var index = 0; index < c.DEATH_KEY_WORDS.length; index++){
       if (data.indexOf(c.DEATH_KEY_WORDS[index]) !== -1){
         if (debug){
-          console.log('[DEBUG] a player died. Matched key word \"' + c.DEATH_KEY_WORDS[index] + "\"");
+          console.log('[DEBUG] A player died. Matched key word \"' + c.DEATH_KEY_WORDS[index] + "\"");
         }
         data = convertToServerMessage(data)
         return(data)
