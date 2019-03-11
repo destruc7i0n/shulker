@@ -136,30 +136,54 @@ function getWordAt (str, pos) {
     return str.slice(left, right + pos);
 }
 
+function convertToServerMessage(data){
+  // Get username of player
+  var username = getWordAt(data, 33)
+  // Change the "Username" field to the server's name and place the player's usename in the message body.
+  data = data.replace(username, "<" + c.SERVER_NAME + " - Server> " + username)
+  return(data)
+}
+
+function parseLogLine(data){
+  // Check if the data is a chat message
+  if (data.indexOf(': <') !== -1) {
+    if (debug){
+      console.log('[Debug]: A player sent a chat message')
+    }
+    return(data)
+  }
+
+  // Check if the data is a player joining or leaving (if enabled)
+  else if (c.SHOW_PLAYER_CONN_STAT && (data.indexOf('left the game') !== -1 || data.indexOf('joined the game') !== -1)){
+    if (debug){
+      console.log('[Debug]: a player\'s connection status changed')
+    }
+    data = convertToServerMessage(data)
+    return(data)
+  }
+
+  // Check if the data is a player earning an achievement (if enabled)
+  else if (c.SHOW_PLAYER_ACHV && data.indexOf('has just earned the achievement') !== -1){
+    if (debug){
+      console.log('[Debug] A player has earned an achievement')
+    }
+    data = convertToServerMessage(data)
+    return(data)
+  }
+
+  // Otherwise return blank
+  else {
+    data = ''
+    return(data)
+  }
+}
+
 function watch (callback) {
   if (c.IS_LOCAL_FILE) {
     tail.on('line', function (data) {
-      // ensure that this is a message
-      if (data.indexOf(': <') !== -1) {
+      data = parseLogLine(data)
+      if (data != '') {
         callback(data)
-      } else if (c.SHOW_PLAYER_CONN_STAT && (data.indexOf('left the game') !== -1 || data.indexOf('joined the game') !== -1)){
-        // Get username of player that joined or left
-    	  var username = getWordAt(data, 33)
-        if (debug){
-          console.log('[Debug]', username + '\'s connection status changed')
-        }
-        // Change player username to server name
-    	  data = data.replace(username, "<" + c.SERVER_NAME + " - Server> " + username)
-    	  callback(data)
-      } else if (c.SHOW_PLAYER_ACHV && data.indexOf('has just earned the achievement') !== -1){
-        // Get username of player that earned the achievement
-    	  var username = getWordAt(data, 33)
-        if (debug){
-          console.log('[Debug]', username + ' has earned an achievement')
-        }
-        // Change player username to server name
-    	  data = data.replace(username, "<" + c.SERVER_NAME + " - Server> " + username)
-    	  callback(data)
       }
     })
   } else {
