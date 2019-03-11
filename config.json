@@ -25,5 +25,7 @@
 
     "SERVER_NAME" : "Shulker",
     "SHOW_PLAYER_CONN_STAT" : false,
-    "SHOW_PLAYER_ACHV" : false
+    "SHOW_PLAYER_ACHV" : false,
+    "SHOW_PLAYER_DEATH" : false,
+    "DEATH_KEY_WORDS" : ["shot", "fell", "death", "died", "doomed", "pummeled", "removed", "didn't want", "withered", "squashed", "flames", "burnt", "walked into", "bang", "roasted", "squished", "drowned", "killed", "slain", "blown", "blew", "suffocated", "struck", "lava", "impaled", "speared", "fireballed", "finished", "kinetic"]
 }

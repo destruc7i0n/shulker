@@ -66,7 +66,9 @@ You can also easily Deploy to Heroku and the like, just be sure to edit `YOUR_UR
 
     "SERVER_NAME" : "Shulker", /* The username used when displaying any server information in chat, e.g., Server - Shulker : Server message here*/
     "SHOW_PLAYER_CONN_STAT" : false, /* Shows player connection status in chat, e.g., Server - Shulker : TheMachine joined the game */
-    "SHOW_PLAYER_ACHV" : false /* Shows when players earn achievements in chat, e.g., Server - Shulker : TheMachine has earned the achievement [MEME - Machine] */
+    "SHOW_PLAYER_ACHV" : false, /* Shows when players earn achievements in chat, e.g., Server - Shulker : TheMachine has earned the achievement [MEME - Machine] */
+    "SHOW_PLAYER_DEATH" : false, /* Shows when players die in chat, e.g., Server - Shulker : TheMachine was blown up by creeper */
+    "DEATH_KEY_WORDS" : ["shot", "fell", "etc".] /* Key words to look for when trying to identify a death message. (As of 3/11/2019 this list is up to date) */
 }
 ```
 
