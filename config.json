@@ -23,6 +23,7 @@
     "RCON_RECONNECT_DELAY": 10,
     "DEBUG": false,
 
+    "SERVER_NAME" : "Shulker",
     "SHOW_PLAYER_CONN_STAT" : false,
-    "SERVER_NAME" : "Shulker"
+    "SHOW_PLAYER_ACHV" : false
 }
