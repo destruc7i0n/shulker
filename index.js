@@ -171,11 +171,23 @@ function parseLogLine(data){
     return(data)
   }
 
-  // Otherwise return blank
-  else {
-    data = ''
-    return(data)
+  // Check if the data is a player death (if enabled)
+  else if (c.SHOW_PLAYER_DEATH){
+    // Check for a match of any DEATH_KEY_WORDS
+    for (var index = 0; index < c.DEATH_KEY_WORDS.length; index++){
+      if (data.indexOf(c.DEATH_KEY_WORDS[index]) !== -1){
+        if (debug){
+          console.log('[DEBUG] a player died. Matched key word \"' + c.DEATH_KEY_WORDS[index] + "\"");
+        }
+        data = convertToServerMessage(data)
+        return(data)
+      }
+    }
   }
+
+  // Otherwise return blank
+  data = ''
+  return(data)
 }
 
 function watch (callback) {
