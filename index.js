@@ -156,7 +156,7 @@ function parseLogLine(data){
   // Check if the data is a player joining or leaving (if enabled)
   else if (c.SHOW_PLAYER_CONN_STAT && (data.indexOf('left the game') !== -1 || data.indexOf('joined the game') !== -1)){
     if (debug){
-      console.log('[Debug]: a player\'s connection status changed')
+      console.log('[Debug]: A player\'s connection status changed')
     }
     data = convertToServerMessage(data)
     return(data)
