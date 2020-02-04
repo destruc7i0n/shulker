@@ -23,7 +23,7 @@ class Shulker {
     if (this.config.USE_WEBHOOKS) {
       console.log('[INFO] Using Discord WebHooks to send messages')
     } else {
-      console.log('[INFO] Using Discord bot to send messages')
+      console.log('[INFO] Using the Discord bot to send messages')
     }
 
     return true

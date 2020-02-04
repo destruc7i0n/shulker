@@ -21,7 +21,7 @@ class MinecraftHandler {
     this.config = config
   }
 
-  fixMinecraftUsername (username: string) {
+  private fixMinecraftUsername (username: string) {
     return username.replace(/(§[A-Z-a-z0-9])/g, '')
   }
 
@@ -50,6 +50,7 @@ class MinecraftHandler {
 
     const logLine = logLineData[1]
 
+    // the username used for server messages
     const serverUsername = `${this.config.SERVER_NAME} - Server`
 
     if (logLine.startsWith('<')) {
@@ -117,9 +118,8 @@ class MinecraftHandler {
   private initWebServer (callback: Callback) {
     // init the webserver
     this.app = express()
-    const http = require('http').Server(this.app)
 
-    this.app.use((request: express.Request, response: express.Response, next: express.NextFunction) => {
+    this.app.use((request, response, next) => {
       request.rawBody = ''
       request.setEncoding('utf8')
 
@@ -140,9 +140,9 @@ class MinecraftHandler {
       res.json({ received: true })
     })
 
-    const port = process.env.PORT || this.config.PORT
+    const port: number = Number(process.env.PORT) || this.config.PORT
 
-    http.listen(port, () => {
+    this.app.listen(port, () => {
       console.log('[INFO] Bot listening on *:' + port)
 
       if (!this.config.IS_LOCAL_FILE && this.config.SHOW_INIT_MESSAGE) {
@@ -156,10 +156,10 @@ class MinecraftHandler {
 
   private initTail (callback: Callback) {
     if (fs.existsSync(this.config.LOCAL_FILE_PATH)) {
-      console.log(`[INFO] Using configuration for local file at "${this.config.LOCAL_FILE_PATH}"`)
+      console.log(`[INFO] Using configuration for local log file at "${this.config.LOCAL_FILE_PATH}"`)
       this.tail = new Tail(this.config.LOCAL_FILE_PATH)
     } else {
-      throw new Error(`[ERROR] Local file not found at "${this.config.LOCAL_FILE_PATH}"`)
+      throw new Error(`[ERROR] Local log file not found at "${this.config.LOCAL_FILE_PATH}"`)
     }
     this.tail.on('line', (data: string) => {
       // Parse the line to see if we care about it
@@ -169,11 +169,11 @@ class MinecraftHandler {
       }
     })
     this.tail.on('error', (error: any) => {
-      console.log('[ERROR] Error tailing file: ' + error)
+      console.log('[ERROR] Error tailing log file: ' + error)
     })
   }
 
-  init (callback: Callback) {
+  public init (callback: Callback) {
     if (this.config.IS_LOCAL_FILE) {
       this.initTail(callback)
     } else {

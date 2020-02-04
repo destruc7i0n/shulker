@@ -28,7 +28,7 @@ class Discord {
     }
   }
 
-  async onMessage (message: Message) {
+  private async onMessage (message: Message) {
     // don't want to check other channels
     if (message.channel.id !== this.config.DISCORD_CHANNEL_ID || message.channel.type !== 'text') return
     // if using webhooks, ignore this!
@@ -50,7 +50,7 @@ class Discord {
     if (this.config.ALLOW_SLASH_COMMANDS && this.config.SLASH_COMMAND_ROLES && message.cleanContent.startsWith('/')) {
       const author = message.member
       if (author.roles.find(r => this.config.SLASH_COMMAND_ROLES.includes(r.name))) {
-        // raw command, can be dangerous...
+        // send the raw command, can be dangerous...
         command = message.cleanContent
       } else {
         console.log('[INFO] User attempted a slash command without a role')
@@ -68,7 +68,7 @@ class Discord {
     rcon.close()
   }
 
-  makeMinecraftTellraw(message: Message): string {
+  private makeMinecraftTellraw(message: Message): string {
     const username = emojiStrip(message.author.username)
     const discriminator = message.author.discriminator
     const text = emojiStrip(message.cleanContent)
@@ -81,7 +81,7 @@ class Discord {
       .replace('%message%', variables.text)
   }
 
-  replaceDiscordMentions(message: string): string {
+  private replaceDiscordMentions(message: string): string {
     const possibleMentions = message.match(/@(\S+)/gim)
     if (possibleMentions) {
       for (let mention of possibleMentions) {
@@ -91,9 +91,7 @@ class Discord {
           if (this.config.ALLOW_USER_MENTIONS) {
             const user = this.client.users.find(user => user.username === username && user.discriminator === mentionParts[1])
             if (user) {
-              if (this.config.ALLOW_USER_MENTIONS) {
-                message = message.replace(mention, '<@' + user.id + '>')
-              }
+              message = message.replace(mention, '<@' + user.id + '>')
             }
           }
         }
@@ -111,13 +109,13 @@ class Discord {
     return message
   }
 
-  makeDiscordWebhook (username: string, message: string) {
+  private makeDiscordWebhook (username: string, message: string) {
     message = this.replaceDiscordMentions(message)
 
     let avatarURL
-    if (username === this.config.SERVER_NAME + ' - Server') { // Use avatar for the server
+    if (username === this.config.SERVER_NAME + ' - Server') { // use avatar for the server
       avatarURL = this.config.SERVER_IMAGE || 'https://minotar.net/helm/Steve/256.png'
-    } else { // Use avatar for player
+    } else { // use avatar for player
       avatarURL = `https://minotar.net/helm/${username}/256.png`
     }
 
@@ -128,7 +126,7 @@ class Discord {
     }
   }
 
-  makeDiscordMessage(username: string, message: string) {
+  private makeDiscordMessage(username: string, message: string) {
     message = this.replaceDiscordMentions(message)
 
     return this.config.DISCORD_MESSAGE_TEMPLATE
@@ -136,7 +134,7 @@ class Discord {
       .replace('%message%', message)
   }
 
-  async sendMessage (username: string, message: string) {
+  public async sendMessage (username: string, message: string) {
     if (this.config.USE_WEBHOOKS) {
       const webhook = this.makeDiscordWebhook(username, message)
       try {

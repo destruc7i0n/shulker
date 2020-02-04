@@ -10,7 +10,6 @@
 - Can send messages regarding advancements, when players join and leave, and player deaths
 - Allows admins to send commands to Minecraft through Discord
  
-
 ## Installation and usage
 
 Create a Discord bot here: https://discordapp.com/developers/applications/me
@@ -67,7 +66,7 @@ You can also easily Deploy to Heroku and the like, just be sure to edit `YOUR_UR
 
     "SHOW_INIT_MESSAGE": true, /* Sends the message on boot if not a local file of what command to run */ 
 
-    "ALLOW_USER_MENTIONS": false, /* should replace @mentions with the mention in discord */
+    "ALLOW_USER_MENTIONS": false, /* should replace @mentions with the mention in discord (format: @username#discriminator) */
     "ALLOW_HERE_EVERYONE_MENTIONS": false, /* replaces @everyone and @here with "@ everyone" and "@ here" respectively */
     "ALLOW_SLASH_COMMANDS": false, /* whether to allow users to run slash commands from discord */
     "SLASH_COMMAND_ROLES": [], /* if the above is enabled, the names of the roles which can run slash commands */

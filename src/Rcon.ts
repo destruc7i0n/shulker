@@ -14,7 +14,7 @@ class Rcon {
   ip: string
   port: number
 
-  packages: any
+  packages: { [key: number]: (type: number, response: string) => void }
 
   constructor (ip: string, port: number, debug: boolean) {
     this.ip = ip
@@ -32,7 +32,7 @@ class Rcon {
       console.log('[INFO] Authenticated with ' + ip + ':' + port)
     })
 
-    this.socket.on('data', (data) => {
+    this.socket.on('data', (data: Buffer) => {
       const id = data.readInt32LE(4)
       const type = data.readInt32LE(8)
       const response = data.toString('ascii', 12, data.length - 2)
@@ -49,31 +49,42 @@ class Rcon {
     })
   }
 
-  close () {
+  public close () {
     this.connected = false
     this.socket.end()
   }
 
-  async auth (password: string) {
+  public async auth (password: string): Promise<void> {
     if (this.authed) { throw new Error('Already authed') }
 
     if (this.connected){
-      await this.sendPackage(3, password)
+      try {
+        await this.sendPackage(3, password)
+      } catch (e) {
+        console.log('[ERROR] Could not send password to Rcon server!')
+        if (this.debug) console.error(e)
+      }
     } else {
-      return new Promise(resolve => {
+      return new Promise((resolve, reject) => {
         this.socket.on('connect', async () => {
-          await this.sendPackage(3, password)
-          resolve()
+          try {
+            await this.sendPackage(3, password)
+            resolve()
+          } catch (e) {
+            console.log('[ERROR] Could not send password to Rcon server!')
+            if (this.debug) console.error(e)
+            reject(e)
+          }
         })
       })
     }
   }
 
-  command (cmd: string) {
+  public command (cmd: string): Promise<string> {
     return this.sendPackage(2, cmd)
   }
 
-  sendPackage (type: number, payload: string) {
+  public sendPackage (type: number, payload: string): Promise<string> {
     const id = this.nextId
     this.nextId++
 
@@ -97,7 +108,7 @@ class Rcon {
         return reject('Server sent no request in ' + this.timeout / 1000 + ' seconds')
       }, this.timeout)
 
-      this.packages[id] = (type: number, response: any) => {
+      this.packages[id] = (type: number, response: string) => {
         clearTimeout(timeout)
         const err = type >= 0 ? false : 'Server sent package code ' + type
         if (this.debug) {
