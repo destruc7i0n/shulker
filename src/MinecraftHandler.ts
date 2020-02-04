@@ -26,22 +26,22 @@ class MinecraftHandler {
   }
 
   private parseLogLine (data: string): LogLine {
-    if (this.config.DEBUG) console.log('[DEBUG] Received ' + data)
-
     const ignored = new RegExp(this.config.REGEX_IGNORED_CHAT)
 
-    if (ignored.test(data)) {
+    if (ignored.test(data) || data.includes('Rcon connection')) {
       if (this.config.DEBUG) console.log('[DEBUG] Line ignored')
       return null
     }
+
+    if (this.config.DEBUG) console.log('[DEBUG] Received ' + data)
 
     const logLineDataRegex = new RegExp(
       `${(this.config.REGEX_SERVER_PREFIX || "\\[Server thread/INFO\\]:")} (.*)`
     )
 
+    // get the part after the log prefix, so all the actual data is here
     const logLineData = data.match(logLineDataRegex)
 
-    if (data.includes('Rcon connection')) return null
     if (!logLineDataRegex.test(data) || !logLineData) {
       console.log('[ERROR] Regex could not match the string! Please verify it is correct!')
       console.log('Received: "' + data + '", Regex matches lines that start with: "' + this.config.REGEX_SERVER_PREFIX + '"')
@@ -84,13 +84,14 @@ class MinecraftHandler {
       }
 
       return { username: serverUsername, message: logLine }
-    } else if (this.config.SHOW_PLAYER_ADVANCEMENT && logLine.includes('granted the advancement')) {
-      // handle achievement earning
+    } else if (this.config.SHOW_PLAYER_ADVANCEMENT && logLine.includes('made the advancement')) {
+      // handle advancements
       if (this.config.DEBUG){
-        console.log('[DEBUG] A player has earned an achievement')
+        console.log('[DEBUG] A player has made an advancement')
       }
       return { username: `${this.config.SERVER_NAME} - Server`, message: logLine }
     } else if (this.config.SHOW_PLAYER_ME && logLine.startsWith('* ')) {
+      // /me commands have the bolded name and the action they did
       const usernameMatch = data.match(/: \* ([a-zA-Z0-9_]{1,16}) (.*)/)
       if (usernameMatch) {
         const username = usernameMatch[1]
@@ -145,10 +146,10 @@ class MinecraftHandler {
       console.log('[INFO] Bot listening on *:' + port)
 
       if (!this.config.IS_LOCAL_FILE && this.config.SHOW_INIT_MESSAGE) {
-        console.log('[INFO] Please enter the following command on your server to send the logs to the server.')
-        console.log('       Be sure to replace "PATH_TO_MINECRAFT_SERVER_INSTALL" with the path to your Minecraft install')
-        console.log('       and replace "YOUR_URL" with the URL/IP of the server running Shulker!')
-        console.log(`  \`tail -F /PATH_TO_MINECRAFT_SERVER_INSTALL/logs/latest.log | grep --line-buffered ": <" | while read x ; do echo -ne $x | curl -X POST -d @- http://YOUR_URL:${port}${this.config.WEBHOOK} ; done\``)
+        console.log('[INFO] Please enter the following command on your server running the Minecraft server.')
+        console.log('       Replace "PATH_TO_MINECRAFT_SERVER_INSTALL" with the path to your Minecraft server install')
+        console.log('       and "YOUR_URL" with the URL/IP of the server running Shulker!')
+        console.log(`  \`tail -F /PATH_TO_MINECRAFT_SERVER_INSTALL/logs/latest.log | grep --line-buffered "${this.config.REGEX_SERVER_PREFIX}" | while read x ; do echo -ne $x | curl -X POST -d @- http://YOUR_URL:${port}${this.config.WEBHOOK} ; done\``)
       }
     })
   }

@@ -29,10 +29,6 @@ class Shulker {
     return true
   }
 
-  fixMinecraftUsername (username: string) {
-    return username.replace(/(§[A-Z-a-z0-9])/g, '')
-  }
-
   onDiscordReady () {
     this.handler.init(async (data: LogLine) => {
       if (data) {
