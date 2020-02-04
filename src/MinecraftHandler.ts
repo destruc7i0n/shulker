@@ -149,7 +149,7 @@ class MinecraftHandler {
         console.log('[INFO] Please enter the following command on your server running the Minecraft server.')
         console.log('       Replace "PATH_TO_MINECRAFT_SERVER_INSTALL" with the path to your Minecraft server install')
         console.log('       and "YOUR_URL" with the URL/IP of the server running Shulker!')
-        console.log(`  \`tail -F /PATH_TO_MINECRAFT_SERVER_INSTALL/logs/latest.log | grep --line-buffered "${this.config.REGEX_SERVER_PREFIX}" | while read x ; do echo -ne $x | curl -X POST -d @- http://YOUR_URL:${port}${this.config.WEBHOOK} ; done\``)
+        console.log(`  \`tail -F /PATH_TO_MINECRAFT_SERVER_INSTALL/logs/latest.log | grep --line-buffered ": <" | while read x ; do echo -ne $x | curl -X POST -d @- http://YOUR_URL:${port}${this.config.WEBHOOK} ; done\``)
       }
     })
   }
