@@ -26,14 +26,15 @@ rcon.password=<your password>
 rcon.port=<1-65535>
 ```
 
-Clone repository onto a server, edit ```config.json``` (see below for more info) and change any options, and then, in the repository folder:
+Clone repository onto a server, edit ```config.json``` (see below for more info) and change any options.
+Then, in the repository folder:
 ```sh
 $ yarn
 $ yarn build && yarn start
 ```
 
-If you are running this locally, enable the `IS_LOCAL_FILE` flag and related options below. Otherwise, perform the following command: 
-On your server hosting (in a screen/tmux session or background process, make sure to replace your `YOUR_URL` with whatever URL you're using (`localhost:8000` if running on the same server and default config) and `PATH_TO_MINECRAFT_SERVER_INSTALL` with the path to the Minecraft server installation, such as `/usr/home/minecraft_server/`):
+If you are running this on the same server as the MC server, enable the `IS_LOCAL_FILE` flag and update related options below.
+Otherwise, perform the following command on the server hosting (in a screen/tmux session or background process, make sure to replace your `YOUR_URL` with whatever URL you're using (`localhost:8000` if running on the same server and default config) and `PATH_TO_MINECRAFT_SERVER_INSTALL` with the path to the Minecraft server installation, such as `/usr/home/minecraft_server/`):
 
 ``` sh
 tail -F /PATH_TO_MINECRAFT_SERVER_INSTALL/logs/latest.log | grep --line-buffered ": <" | while read x ; do echo -ne $x | curl -X POST -d @- http://YOUR_URL/minecraft/hook ; done
@@ -54,6 +55,7 @@ You can also easily Deploy to Heroku and the like, just be sure to edit `YOUR_UR
     "WEBHOOK_URL": "DISCORD_WEBHOOK_URL_HERE", /* Be sure to create a webhook in the channel settings and place it here! */
     "DISCORD_TOKEN": "<12345>", /* Discord bot token. [Click here](https://discordapp.com/developers/applications/me) to create you application and add a bot to it. */
     "DISCORD_CHANNEL_ID": "<channel>", /* Discord channel ID for for the discord bot. Enable developer mode in your Discord client, then right click channel and select "Copy ID". */
+    "DISCORD_CHANNEL_NAME": "#<channel name>" /* The Discord channel name. It is recommended to use the ID if the bot is in multiple servers. The ID will take precedence. */
     "DISCORD_MESSAGE_TEMPLATE": "`%username%`:%message%", /* Message template to display in Discord */
     
     "MINECRAFT_SERVER_RCON_IP": "127.0.0.1", /* Minecraft server IP (make sure you have enabled rcon) */

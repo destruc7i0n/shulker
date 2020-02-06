@@ -1,4 +1,4 @@
-import { Client, Message, TextChannel } from 'discord.js'
+import {Client, Message, Snowflake, TextChannel} from 'discord.js'
 
 import emojiStrip from 'emoji-strip'
 import axios from 'axios'
@@ -11,26 +11,47 @@ class Discord {
   config: Config
   client: Client
 
+  channel: Snowflake
+
   constructor (config: Config, onReady?: () => void) {
     this.config = config
 
     this.client = new Client()
     if (onReady) this.client.once('ready', () => onReady())
     this.client.on('message', (message: Message) => this.onMessage(message))
+
+    this.channel = config.DISCORD_CHANNEL_ID || ''
   }
 
-  async init () {
+  public async init () {
     try {
       await this.client.login(this.config.DISCORD_TOKEN)
+      if (this.config.DISCORD_CHANNEL_NAME) this.getChannelIdFromName(this.config.DISCORD_CHANNEL_NAME)
     } catch (e) {
       console.log('[ERROR] Could not authenticate with Discord: ' + e)
       if (this.config.DEBUG) console.error(e)
     }
   }
 
+  private getChannelIdFromName (name: string) {
+    // remove the # if there is one
+    if (name.startsWith('#')) name = name.substring(1, name.length)
+    // @ts-ignore
+    const channel: TextChannel = this.client.channels.find((c: TextChannel) => c.type === 'text' && c.name === name && !c.deleted)
+    if (channel) {
+      this.channel = channel.id
+      console.log(`[INFO] Found channel #${channel.name} (id: ${channel.id}) in the server "${channel.guild.name}"`)
+    } else {
+      console.log(`[INFO] Could not find channel ${name}! Check that the name is correct or use the ID of the channel instead (DISCORD_CHANNEL_ID)!`)
+      process.exit(1)
+    }
+  }
+
   private async onMessage (message: Message) {
+    // no channel, done
+    if (!this.channel) return
     // don't want to check other channels
-    if (message.channel.id !== this.config.DISCORD_CHANNEL_ID || message.channel.type !== 'text') return
+    if (message.channel.id !== this.channel || message.channel.type !== 'text') return
     // if using webhooks, ignore this!
     if (this.config.USE_WEBHOOKS && message.webhookID) return
     // if the same user as the bot, ignore

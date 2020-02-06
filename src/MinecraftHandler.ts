@@ -44,8 +44,10 @@ class MinecraftHandler {
     const logLineData = data.match(logLineDataRegex)
 
     if (!logLineDataRegex.test(data) || !logLineData) {
-      console.log('[ERROR] Regex could not match the string! Please verify it is correct!')
-      console.log('Received: "' + data + '", Regex matches lines that start with: "' + this.config.REGEX_SERVER_PREFIX + '"')
+      if (this.config.DEBUG) {
+        console.log('[DEBUG] Regex could not match the string:')
+        console.log('Received: "' + data + '", Regex matches lines that start with: "' + this.config.REGEX_SERVER_PREFIX + '"')
+      }
       return null
     }
 
@@ -164,7 +166,14 @@ class MinecraftHandler {
 
         mcPath = (defaultPath ? '/' : '') + path.join(mcPath, '/logs/latest.log')
 
-        console.log(`  \`tail -F ${mcPath} | grep --line-buffered ": <" | while read x ; do echo -ne $x | curl -X POST -d @- http://${url}:${port}${this.config.WEBHOOK} ; done\``)
+        let grepMatch = ': <'
+        if (this.config.SHOW_PLAYER_DEATH || this.config.SHOW_PLAYER_ME || this.config.SHOW_PLAYER_ADVANCEMENT || this.config.SHOW_PLAYER_CONN_STAT) {
+          grepMatch = this.config.REGEX_SERVER_PREFIX
+        }
+        console.log(`  \`tail -F ${mcPath} | grep --line-buffered "${grepMatch}" | while read x ; do echo -ne $x | curl -X POST -d @- http://${url}:${port}${this.config.WEBHOOK} ; done\``)
+        if (grepMatch !== ': <') {
+          console.log('       Please note that the above command can send a lot of requests to the server. Disable the non-text messages (such as "SHOW_PLAYER_CONN_STAT") to reduce this if necessary.')
+        }
       }
     })
   }
