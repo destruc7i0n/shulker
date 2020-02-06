@@ -1,4 +1,5 @@
 import fs from 'fs'
+import path from 'path'
 import { Tail } from 'tail'
 import express from 'express'
 
@@ -21,7 +22,7 @@ class MinecraftHandler {
     this.config = config
   }
 
-  private fixMinecraftUsername (username: string) {
+  private static fixMinecraftUsername (username: string) {
     return username.replace(/(§[A-Z-a-z0-9])/g, '')
   }
 
@@ -66,7 +67,7 @@ class MinecraftHandler {
         return null
       }
 
-      const username = this.fixMinecraftUsername(matches[1])
+      const username = MinecraftHandler.fixMinecraftUsername(matches[1])
       const message = matches[2]
       if (this.config.DEBUG) {
         console.log('[DEBUG] Username: ' + matches[1])
@@ -146,10 +147,24 @@ class MinecraftHandler {
       console.log('[INFO] Bot listening on *:' + port)
 
       if (!this.config.IS_LOCAL_FILE && this.config.SHOW_INIT_MESSAGE) {
-        console.log('[INFO] Please enter the following command on your server running the Minecraft server.')
-        console.log('       Replace "PATH_TO_MINECRAFT_SERVER_INSTALL" with the path to your Minecraft server install')
-        console.log('       and "YOUR_URL" with the URL/IP of the server running Shulker!')
-        console.log(`  \`tail -F /PATH_TO_MINECRAFT_SERVER_INSTALL/logs/latest.log | grep --line-buffered ": <" | while read x ; do echo -ne $x | curl -X POST -d @- http://YOUR_URL:${port}${this.config.WEBHOOK} ; done\``)
+        // in case someone inputs the actual path and url in the config here...
+        let mcPath: string = this.config.PATH_TO_MINECRAFT_SERVER_INSTALL || 'PATH_TO_MINECRAFT_SERVER_INSTALL'
+        const url: string = this.config.YOUR_URL || 'YOUR_URL'
+
+        const defaultPath = mcPath === 'PATH_TO_MINECRAFT_SERVER_INSTALL'
+        const defaultUrl = url === 'YOUR_URL'
+
+        console.log('[INFO] Please enter the following command on your server running the Minecraft server:')
+        if (defaultPath) {
+          console.log('       Replace "PATH_TO_MINECRAFT_SERVER_INSTALL" with the path to your Minecraft server install')
+          if (defaultUrl) console.log('       and "YOUR_URL" with the URL/IP of the server running Shulker!')
+        } else {
+          if (defaultUrl) console.log('       Replace "YOUR_URL" with the URL/IP of the server running Shulker')
+        }
+
+        mcPath = (defaultPath ? '/' : '') + path.join(mcPath, '/logs/latest.log')
+
+        console.log(`  \`tail -F ${mcPath} | grep --line-buffered ": <" | while read x ; do echo -ne $x | curl -X POST -d @- http://${url}:${port}${this.config.WEBHOOK} ; done\``)
       }
     })
   }

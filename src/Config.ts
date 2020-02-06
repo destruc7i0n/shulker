@@ -15,6 +15,9 @@ export interface Config {
   IS_LOCAL_FILE: boolean
   LOCAL_FILE_PATH: string
 
+  PATH_TO_MINECRAFT_SERVER_INSTALL?: string
+  YOUR_URL?: string
+
   SHOW_INIT_MESSAGE: boolean
 
   ALLOW_USER_MENTIONS: boolean
