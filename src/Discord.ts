@@ -26,7 +26,8 @@ class Discord {
   public async init () {
     try {
       await this.client.login(this.config.DISCORD_TOKEN)
-      if (this.config.DISCORD_CHANNEL_NAME) this.getChannelIdFromName(this.config.DISCORD_CHANNEL_NAME)
+      if (this.config.DISCORD_CHANNEL_NAME && !this.config.DISCORD_CHANNEL_ID)
+        this.getChannelIdFromName(this.config.DISCORD_CHANNEL_NAME)
     } catch (e) {
       console.log('[ERROR] Could not authenticate with Discord: ' + e)
       if (this.config.DEBUG) console.error(e)
