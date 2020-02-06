@@ -29,7 +29,6 @@ export interface Config {
   REGEX_SERVER_PREFIX: string
   REGEX_MATCH_CHAT_MC: string
   REGEX_IGNORED_CHAT: string
-  RCON_RECONNECT_DELAY: number
   DEBUG: boolean
 
   SERVER_NAME: string

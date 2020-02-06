@@ -77,13 +77,13 @@ You can also easily Deploy to Heroku and the like, just be sure to edit `YOUR_UR
     "REGEX_IGNORED_CHAT": "packets too frequently", /* What to ignore, you can put any regex for swear words for example and it will  be ignored */
     "DEBUG": false, /* Dev debugging */
 
-    "SERVER_NAME" : "Shulker", /* The username used when displaying any server information in chat, e.g., Server - Shulker : Server message here*/
+    "SERVER_NAME": "Shulker", /* The username used when displaying any server information in chat, e.g., Server - Shulker : Server message here*/
     "SERVER_IMAGE": "", /* Image for the server when sending such messages (if enabled below). Only for WebHooks. */
-    "SHOW_PLAYER_CONN_STAT" : false, /* Shows player connection status in chat, e.g., Server - Shulker : TheMachine joined the game */
-    "SHOW_PLAYER_ADVANCEMENT" : false, /* Shows when players earn achievements in chat, e.g., Server - Shulker : TheMachine has earned the achievement [MEME - Machine] */
-    "SHOW_PLAYER_DEATH" : false, /* Shows when players die in chat, e.g., Server - Shulker : TheMachine was blown up by creeper */
-    "SHOW_PLAYER_ME" : false, /* Shows when players use the /me command, e.g. **destruc7i0n** says hello */
-    "DEATH_KEY_WORDS" : ["shot", "fell", "etc".] /* Key words to look for when trying to identify a death message. (As of 3/11/2019 this list is up to date) */
+    "SHOW_PLAYER_CONN_STAT": false, /* Shows player connection status in chat, e.g., Server - Shulker : TheMachine joined the game */
+    "SHOW_PLAYER_ADVANCEMENT": false, /* Shows when players earn advancements in chat, e.g., Server - Shulker : TheMachine has made the advacement [MEME - Machine] */
+    "SHOW_PLAYER_DEATH": false, /* Shows when players die in chat, e.g., Server - Shulker : TheMachine was blown up by creeper */
+    "SHOW_PLAYER_ME": false, /* Shows when players use the /me command, e.g. **destruc7i0n** says hello */
+    "DEATH_KEY_WORDS": ["shot", "fell", "etc".] /* Key words to look for when trying to identify a death message. (As of 3/11/2019 this list is up to date) */
 }
 ```
 
@@ -93,7 +93,7 @@ You can also easily Deploy to Heroku and the like, just be sure to edit `YOUR_UR
   
 * Why can't I send commands even if I have the option enabled?
   - Make sure that you have a role on the server which is put in the array `SLASH_COMMAND_ROLES` case-sensitive.
-    - e.g. `"SLASH_COMMAND_ROLES": ["Admin"],`
+    - e.g. `"SLASH_COMMAND_ROLES": ["Admin"]`
 
 ## Upcoming
 None
