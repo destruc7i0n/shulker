@@ -4,7 +4,8 @@
     "USE_WEBHOOKS": true,
     "WEBHOOK_URL": "DISCORD_WEBHOOK_URL_HERE",
     "DISCORD_TOKEN": "TOKEN_HERE",
-    "DISCORD_CHANNEL_ID": "1234",
+    "DISCORD_CHANNEL_ID": "",
+    "DISCORD_CHANNEL_NAME": "#bot",
     "DISCORD_MESSAGE_TEMPLATE": "`%username%`: %message%",
 
     "MINECRAFT_SERVER_RCON_IP": "127.0.0.1",
@@ -15,11 +16,25 @@
     "IS_LOCAL_FILE": false,
     "LOCAL_FILE_PATH": "/usr/home/minecraft_server/logs/latest.log",
 
+    "SHOW_INIT_MESSAGE": true,
+
     "ALLOW_USER_MENTIONS": false,
+    "ALLOW_HERE_EVERYONE_MENTIONS": false,
+    "ALLOW_SLASH_COMMANDS": false,
+    "SLASH_COMMAND_ROLES": [],
 
     "WEBHOOK": "/minecraft/hook",
-    "REGEX_MATCH_CHAT_MC": "\\[Server thread/INFO\\]: <([^>]*)> (.*)",
+    "REGEX_SERVER_PREFIX": "\\[Server thread/INFO\\]:",
+    "REGEX_MATCH_CHAT_MC": "^<([^>]*)> (.*)",
     "REGEX_IGNORED_CHAT": "packets too frequently",
-    "RCON_RECONNECT_DELAY": 10,
-    "DEBUG": false
+    "DEBUG": false,
+
+    "SERVER_NAME": "Shulker",
+    "SERVER_IMAGE": "",
+    "SHOW_PLAYER_CONN_STAT": false,
+    "SHOW_PLAYER_ADVANCEMENT": false,
+    "SHOW_PLAYER_DEATH": false,
+    "SHOW_PLAYER_ME": false,
+    "DEATH_KEY_WORDS": ["shot", "fell", "death", "died", "doomed", "pummeled", "removed", "didn't want", "withered", "squashed", "flames", "burnt", "walked into", "bang", "roasted", "squished", "drowned", "killed", "slain", "blown", "blew", "suffocated", "struck", "lava", "impaled", "speared", "fireballed", "finished", "kinetic"]
 }
+
