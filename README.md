@@ -2,6 +2,10 @@
 
 > Connects [Discord](https://discordapp.com/) and [Minecraft](https://minecraft.net) Servers by sending messages back and forth without any mods or plugins.
 
+## Notice
+This project has recently gone under a rewrite and the format for `config.json` is not directly backwards compatible with previous versions.
+See [below](#upgrade-instructions) for details.
+
 ## In Action
 ![discord-mc](http://i.thedestruc7i0n.ca/I5anbg.gif)
 
@@ -96,6 +100,11 @@ You can also easily Deploy to Heroku and the like, just be sure to edit `YOUR_UR
 * Why can't I send commands even if I have the option enabled?
   - Make sure that you have a role on the server which is put in the array `SLASH_COMMAND_ROLES` case-sensitive.
     - e.g. `"SLASH_COMMAND_ROLES": ["Admin"]`
+
+## Upgrade Instructions
+From version 2 to version 3:
+- The main change is that you need to split your `REGEX_MATCH_CHAT_MC` to both `REGEX_MATCH_CHAT_MC` and `REGEX_SERVER_PREFIX`.
+  See the [configuration](#configuration) above for details.
 
 ## Upcoming
 None
