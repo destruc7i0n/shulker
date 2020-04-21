@@ -91,11 +91,15 @@ class Discord {
   }
 
   private makeMinecraftTellraw(message: Message): string {
-    const username = emojiStrip(message.author.username)
-    const discriminator = message.author.discriminator
-    const text = emojiStrip(message.cleanContent)
+    const variables: {[index: string]: string} = {
+      username: emojiStrip(message.author.username),
+      discriminator: message.author.discriminator,
+      text: emojiStrip(message.cleanContent)
+    }
     // hastily use JSON to encode the strings
-    const variables = JSON.parse(JSON.stringify({ username, discriminator, text }))
+    for (const v of Object.keys(variables)) {
+      variables[v] = JSON.stringify(variables[v]).slice(1,-1)
+    }
 
     return this.config.MINECRAFT_TELLRAW_TEMPLATE
       .replace('%username%', variables.username)
