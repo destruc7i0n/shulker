@@ -48,13 +48,46 @@ class Discord {
     }
   }
 
+  private parseDiscordWebhook (url: string) {
+    const re = /discordapp.com\/api\/webhooks\/([^\/]+)\/([^\/]+)/
+
+    // the is of the webhook
+    let id = null
+    let token = null
+
+    if (!re.test(url)) {
+      // In case the url changes at some point, I will warn if it still works
+      console.log('[WARN] The Webhook URL may not be valid!')
+    } else {
+      const match = url.match(re)
+      if (match) {
+        id = match[1]
+        token = match[2]
+      }
+    }
+
+    return { id, token }
+  }
+
   private async onMessage (message: Message) {
     // no channel, done
     if (!this.channel) return
     // don't want to check other channels
     if (message.channel.id !== this.channel || message.channel.type !== 'text') return
     // if using webhooks, ignore this!
-    if (this.config.USE_WEBHOOKS && message.webhookID) return
+    if (message.webhookID) {
+      // if ignoring all webhooks, ignore
+      if (this.config.IGNORE_WEBHOOKS) {
+        return
+      } else if (this.config.USE_WEBHOOKS) {
+        // otherwise, ignore all webhooks that are not the same as this one
+        const { id } = this.parseDiscordWebhook(this.config.WEBHOOK_URL)
+        if (id === message.webhookID) {
+          if (this.config.DEBUG) console.log('[INFO] Ignoring webhook from self')
+          return
+        }
+      }
+    }
     // if the same user as the bot, ignore
     if (message.author.id === this.client.user.id) return
     // ignore any attachments
@@ -80,6 +113,8 @@ class Discord {
     } else {
       command = `/tellraw @a ${this.makeMinecraftTellraw(message)}`
     }
+
+    if (this.config.DEBUG) console.log(`[DEBUG] Sending command "${command}" to the server`)
 
     if (command) {
       await rcon.command(command).catch((e) => {

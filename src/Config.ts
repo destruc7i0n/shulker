@@ -3,6 +3,7 @@ export interface Config {
 
   USE_WEBHOOKS: boolean
   WEBHOOK_URL: string
+  IGNORE_WEBHOOKS: string
   DISCORD_TOKEN: string
   DISCORD_CHANNEL_ID: string
   DISCORD_CHANNEL_NAME: string

@@ -158,8 +158,7 @@ class MinecraftHandler {
 
         console.log('[INFO] Please enter the following command on your server running the Minecraft server:')
         if (defaultPath) {
-          console.log('       Replace "PATH_TO_MINECRAFT_SERVER_INSTALL" with the path to your Minecraft server install')
-          if (defaultUrl) console.log('       and "YOUR_URL" with the URL/IP of the server running Shulker!')
+          console.log('       Replace "PATH_TO_MINECRAFT_SERVER_INSTALL" with the path to your Minecraft server install' + (defaultUrl ? ' and "YOUR_URL" with the URL/IP of the server running Shulker.' : ''))
         } else {
           if (defaultUrl) console.log('       Replace "YOUR_URL" with the URL/IP of the server running Shulker')
         }
