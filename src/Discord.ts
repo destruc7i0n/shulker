@@ -76,6 +76,9 @@ class Discord {
     if (message.channel.id !== this.channel || message.channel.type !== 'text') return
     // if using webhooks, ignore this!
     if (message.webhookID) {
+      // backwards compatability with older config
+      if (this.config.USE_WEBHOOKS && this.config.IGNORE_WEBHOOKS === undefined) return
+
       // if ignoring all webhooks, ignore
       if (this.config.IGNORE_WEBHOOKS) {
         return
