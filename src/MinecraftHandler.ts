@@ -80,21 +80,31 @@ class MinecraftHandler {
         console.log('[DEBUG] Text: ' + matches[2])
       }
       return { username, message }
-    } else if ( this.config.SHOW_PLAYER_CONN_STAT && ( logLine.includes('left the game') || logLine.includes('joined the game'))) {
+    } else if (logLine.includes('left the game') || logLine.includes('joined the game')) {
       // handle disconnection etc.
       if (this.config.DEBUG){
         console.log(`[DEBUG]: A player's connection status changed`)
       }
 
-      if ( logLine.includes('joined the game')){
-        this.config.PLAYERCOUNT += 1 
+      // Only keep track of player count if enabled
+      if (this.config.PLAYERCOUNT_IN_SERVERNAME){
+        if ( logLine.includes('joined the game')){
+          this.config.PLAYERCOUNT += 1 
+        } else {
+          if (this.config.PLAYERCOUNT != 0){
+            this.config.PLAYERCOUNT -= 1
+          }  
+        }
+        serverUsername = serverUsername.replace(/- [0-9]{1,10} online/, `- ${this.config.PLAYERCOUNT} online`)
+      }
+      
+      // Only send to discord if SHOW_PLAYER_CONN_STAT is enabled otherwise dont send anything
+      if (this.config.SHOW_PLAYER_CONN_STAT){
+        return { username: serverUsername, message: logLine }
       } else {
-        if (this.config.PLAYERCOUNT != 0){
-          this.config.PLAYERCOUNT -= 1
-        }  
+        return null
       }
 
-      return { username: serverUsername.replace(/- [0-9]{1,10} online/, `- ${this.config.PLAYERCOUNT} online`), message: logLine }
     } else if (this.config.SHOW_PLAYER_ADVANCEMENT && logLine.includes('made the advancement')) {
       // handle advancements
       if (this.config.DEBUG){
