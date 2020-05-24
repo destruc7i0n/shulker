@@ -33,8 +33,10 @@ export interface Config {
   REGEX_IGNORED_CHAT: string
   DEBUG: boolean
 
-  SERVER_NAME: string
   SERVER_IMAGE: string
+  SERVER_NAME: string
+  PLAYERCOUNT_IN_SERVERNAME: boolean
+  PLAYERCOUNT: number
   SHOW_PLAYER_CONN_STAT: boolean
   SHOW_PLAYER_ADVANCEMENT: boolean
   SHOW_PLAYER_DEATH: boolean
