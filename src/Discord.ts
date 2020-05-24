@@ -140,9 +140,9 @@ class Discord {
     }
 
     return this.config.MINECRAFT_TELLRAW_TEMPLATE
-      .replace('%username%', variables.username)
-      .replace('%discriminator%', variables.discriminator)
-      .replace('%message%', variables.text)
+      .replace(/%username%/g, variables.username)
+      .replace(/%discriminator%/g, variables.discriminator)
+      .replace(/%message%/g, variables.text)
   }
 
   private replaceDiscordMentions(message: string): string {
