@@ -26,6 +26,7 @@
     "axios": "^0.19.2",
     "discord.js": "^11.5.1",
     "emoji-strip": "^1.0.1",
+    "escape-string-regexp": "^4.0.0",
     "express": "^4.17.1",
     "tail": "^2.0.3"
   },
