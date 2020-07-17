@@ -180,7 +180,8 @@ class MinecraftHandler {
   private initTail (callback: Callback) {
     if (fs.existsSync(this.config.LOCAL_FILE_PATH)) {
       console.log(`[INFO] Using configuration for local log file at "${this.config.LOCAL_FILE_PATH}"`)
-      this.tail = new Tail(this.config.LOCAL_FILE_PATH)
+	    var options= {useWatchFile: true}
+      this.tail = new Tail(this.config.LOCAL_FILE_PATH, options)
     } else {
       throw new Error(`[ERROR] Local log file not found at "${this.config.LOCAL_FILE_PATH}"`)
     }
