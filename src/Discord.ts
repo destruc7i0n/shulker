@@ -131,6 +131,7 @@ class Discord {
   private makeMinecraftTellraw(message: Message): string {
     const variables: {[index: string]: string} = {
       username: emojiStrip(message.author.username),
+      nickname: message.member.nickname ? emojiStrip(message.member.nickname) : emojiStrip(message.author.username),
       discriminator: message.author.discriminator,
       text: emojiStrip(message.cleanContent)
     }
@@ -141,6 +142,7 @@ class Discord {
 
     return this.config.MINECRAFT_TELLRAW_TEMPLATE
       .replace(/%username%/g, variables.username)
+      .replace(/%nickname%/g, variables.nickname)
       .replace(/%discriminator%/g, variables.discriminator)
       .replace(/%message%/g, variables.text)
   }
