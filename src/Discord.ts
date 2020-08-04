@@ -148,7 +148,7 @@ class Discord {
   }
 
   private replaceDiscordMentions(message: string): string {
-    const possibleMentions = message.match(/@*.*#[0-9]{4}/gim)
+    const possibleMentions = message.match(/@[^#\s]*[#]?[0-9]{4}/gim)
     if (possibleMentions) {
       for (let mention of possibleMentions) {
         const mentionParts = mention.split('#')
