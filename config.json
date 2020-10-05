@@ -32,8 +32,10 @@
     "REGEX_IGNORED_CHAT": "packets too frequently",
     "DEBUG": false,
 
-    "SERVER_NAME": "Shulker",
     "SERVER_IMAGE": "",
+    "SERVER_NAME": "Shulker",
+    "PLAYERCOUNT_IN_SERVERNAME": false,
+    "PLAYERCOUNT": 0,
     "SHOW_PLAYER_CONN_STAT": false,
     "SHOW_PLAYER_ADVANCEMENT": false,
     "SHOW_PLAYER_DEATH": false,

@@ -1,5 +1,5 @@
 import {Client, Message, Snowflake, TextChannel} from 'discord.js'
-
+import escapeStringRegexp from 'escape-string-regexp'
 import emojiStrip from 'emoji-strip'
 import axios from 'axios'
 
@@ -201,7 +201,8 @@ class Discord {
     message = this.replaceDiscordMentions(message)
 
     let avatarURL
-    if (username === this.config.SERVER_NAME + ' - Server') { // use avatar for the server
+    const serverNameRegex = new RegExp(escapeStringRegexp(`${this.config.SERVER_NAME} - Server`)+`.*`);
+    if (username.match(serverNameRegex)) { // use avatar for the server
       avatarURL = this.config.SERVER_IMAGE || 'https://minotar.net/helm/Steve/256.png'
     } else { // use avatar for player
       avatarURL = `https://minotar.net/helm/${username}/256.png`

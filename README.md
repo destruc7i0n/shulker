@@ -86,8 +86,10 @@ You can also easily Deploy to Heroku and the like, just be sure to edit `YOUR_UR
     "REGEX_IGNORED_CHAT": "packets too frequently", /* What to ignore, you can put any regex for swear words for example and it will  be ignored */
     "DEBUG": false, /* Dev debugging */
 
-    "SERVER_NAME": "Shulker", /* The username used when displaying any server information in chat, e.g., Server - Shulker : Server message here*/
     "SERVER_IMAGE": "", /* Image for the server when sending such messages (if enabled below). Only for WebHooks. */
+    "SERVER_NAME": "Shulker", /* The username used when displaying any server information in chat, e.g., Shulker - Server : Server message here*/
+    "PLAYERCOUNT_IN_SERVERNAME": false, /* Will add the number of players currently in the server to the server username e.g., Shulker - Server - 1 online : Server message here*/
+    "PLAYERCOUNT": 0, /* For most cases you can leave this at 0 but if you are starting Shulker when there are already players in the server set this to the current number of players online if this is incorrectly set it will tautomatically fix itself once the server hits 0 players*/
     "SHOW_PLAYER_CONN_STAT": false, /* Shows player connection status in chat, e.g., Server - Shulker : TheMachine joined the game */
     "SHOW_PLAYER_ADVANCEMENT": false, /* Shows when players earn advancements in chat, e.g., Server - Shulker : TheMachine has made the advacement [MEME - Machine] */
     "SHOW_PLAYER_DEATH": false, /* Shows when players die in chat, e.g., Server - Shulker : TheMachine was blown up by creeper */

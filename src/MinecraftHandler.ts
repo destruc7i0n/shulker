@@ -53,8 +53,12 @@ class MinecraftHandler {
 
     const logLine = logLineData[1]
 
-    // the username used for server messages
-    const serverUsername = `${this.config.SERVER_NAME} - Server`
+    // the username used for server messages 
+    // DO NOT REMOVE "- Server" or you will break the regex used in Discord.ts to select the correct avatarURL 
+    var serverUsername = `${this.config.SERVER_NAME} - Server`
+    if (this.config.PLAYERCOUNT_IN_SERVERNAME) {
+      serverUsername += ` - ${this.config.PLAYERCOUNT} online`
+    }
 
     if (logLine.startsWith('<')) {
       if (this.config.DEBUG){
@@ -76,18 +80,31 @@ class MinecraftHandler {
         console.log('[DEBUG] Text: ' + matches[2])
       }
       return { username, message }
-    } else if (
-      this.config.SHOW_PLAYER_CONN_STAT && (
-        logLine.includes('left the game') ||
-        logLine.includes('joined the game')
-      )
-    ) {
+    } else if (logLine.includes('left the game') || logLine.includes('joined the game')) {
       // handle disconnection etc.
       if (this.config.DEBUG){
         console.log(`[DEBUG]: A player's connection status changed`)
       }
 
-      return { username: serverUsername, message: logLine }
+      // Only keep track of player count if enabled
+      if (this.config.PLAYERCOUNT_IN_SERVERNAME){
+        if ( logLine.includes('joined the game')){
+          this.config.PLAYERCOUNT += 1 
+        } else {
+          if (this.config.PLAYERCOUNT != 0){
+            this.config.PLAYERCOUNT -= 1
+          }  
+        }
+        serverUsername = serverUsername.replace(/- [0-9]{1,10} online/, `- ${this.config.PLAYERCOUNT} online`)
+      }
+      
+      // Only send to discord if SHOW_PLAYER_CONN_STAT is enabled otherwise dont send anything
+      if (this.config.SHOW_PLAYER_CONN_STAT){
+        return { username: serverUsername, message: logLine }
+      } else {
+        return null
+      }
+
     } else if (this.config.SHOW_PLAYER_ADVANCEMENT && logLine.includes('made the advancement')) {
       // handle advancements
       if (this.config.DEBUG){
