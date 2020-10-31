@@ -90,14 +90,14 @@ class MinecraftHandler {
       return { username: serverUsername, message: logLine }
     } else if (this.config.SHOW_SERVER_STATUS && (logLine.includes('Starting minecraft server'))) {
         if (this.config.DEBUG) {
-            console.log('[DEBUG]: Server has started')
+          console.log('[DEBUG]: Server has started')
         }
-        return { username: serverUsername, message: "Server is online" }
+        return { username: serverUsername, message: 'Server is online' }
     } else if (this.config.SHOW_SERVER_STATUS && (logLine.includes('Stopping the server'))) {
         if (this.config.DEBUG) {
-            console.log('[DEBUG]: Server has stopped')
+          console.log('[DEBUG]: Server has stopped')
         }
-        return { username: serverUsername, message: "Server is offline" }
+        return { username: serverUsername, message: 'Server is offline' }
     } else if (this.config.SHOW_PLAYER_ADVANCEMENT && logLine.includes('made the advancement')) {
       // handle advancements
       if (this.config.DEBUG){
@@ -132,7 +132,7 @@ class MinecraftHandler {
     // init the webserver
     this.app = express()
 
-    this.app.use((request, response, next) => {
+    this.app.use((request, _response, next) => {
       request.rawBody = ''
       request.setEncoding('utf8')
 

@@ -114,13 +114,11 @@ class Discord {
         console.log('[INFO] User attempted a slash command without a role')
       }
     } else {
-        if (this.config.MINECRAFT_TELLRAW_DOESNT_EXIST) 
-        {
-            command = `/say ${this.makeMinecraftTellraw(message)}`
-        }
-        else {
-            command = `/tellraw @a ${this.makeMinecraftTellraw(message)}`
-        }
+      if (this.config.MINECRAFT_TELLRAW_DOESNT_EXIST) {
+        command = `/say ${this.makeMinecraftTellraw(message)}`
+      } else {
+        command = `/tellraw @a ${this.makeMinecraftTellraw(message)}`
+      }
     }
 
     if (this.config.DEBUG) console.log(`[DEBUG] Sending command "${command}" to the server`)
