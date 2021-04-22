@@ -29,6 +29,7 @@
     "WEBHOOK": "/minecraft/hook",
     "REGEX_SERVER_PREFIX": "\\[Server thread/INFO\\]:",
     "REGEX_MATCH_CHAT_MC": "^<([^>]*)> (.*)",
+    "REGEX_DEATH_MESSAGE": "^[\\w_]+ (died|drowned|blew up|fell|burned|froze|starved|suffocated|withered|walked into a cactus|experienced kinetic energy|discovered the floor was lava|tried to swim in lava|hit the ground|didn't want to live|went (up in flames|off with a bang)|walked into (fire|danger)|was (killed|shot|slain|pummeled|pricked|blown up|impaled|squashed|squished|skewered|poked|roasted|burnt|frozen|struck by lightning|fireballed|stung|doomed))",
     "REGEX_IGNORED_CHAT": "packets too frequently",
     "DEBUG": false,
 
@@ -38,7 +39,6 @@
     "SHOW_PLAYER_CONN_STAT": false,
     "SHOW_PLAYER_ADVANCEMENT": false,
     "SHOW_PLAYER_DEATH": false,
-    "SHOW_PLAYER_ME": false,
-    "DEATH_KEY_WORDS": ["shot", "fell", "death", "died", "doomed", "pummeled", "removed", "didn't want", "withered", "squashed", "flames", "burnt", "walked into", "bang", "roasted", "squished", "drowned", "killed", "slain", "blown", "blew", "suffocated", "struck", "lava", "impaled", "speared", "fireballed", "finished", "kinetic"]
+    "SHOW_PLAYER_ME": false
 }
 

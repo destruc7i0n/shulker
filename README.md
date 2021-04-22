@@ -83,6 +83,7 @@ You can also easily Deploy to Heroku and the like, just be sure to edit `YOUR_UR
     "WEBHOOK": "/minecraft/hook", /* Web hook, where to send the log to */
     "REGEX_SERVER_PREFIX": "\\[Server thread/INFO\\]:", /* What the lines of the log should start with */
     "REGEX_MATCH_CHAT_MC": "^<([^>]*)> (.*)", /* What to match for chat (best to leave as default) */
+    "REGEX_DEATH_MESSAGE": "^[\w_]+ (died|...)", /* What to match for death messages (best leave this default too) */
     "REGEX_IGNORED_CHAT": "packets too frequently", /* What to ignore, you can put any regex for swear words for example and it will  be ignored */
     "DEBUG": false, /* Dev debugging */
 
@@ -92,8 +93,7 @@ You can also easily Deploy to Heroku and the like, just be sure to edit `YOUR_UR
     "SHOW_PLAYER_CONN_STAT": false, /* Shows player connection status in chat, e.g., Server - Shulker : TheMachine joined the game */
     "SHOW_PLAYER_ADVANCEMENT": false, /* Shows when players earn advancements in chat, e.g., Server - Shulker : TheMachine has made the advacement [MEME - Machine] */
     "SHOW_PLAYER_DEATH": false, /* Shows when players die in chat, e.g., Server - Shulker : TheMachine was blown up by creeper */
-    "SHOW_PLAYER_ME": false, /* Shows when players use the /me command, e.g. **destruc7i0n** says hello */
-    "DEATH_KEY_WORDS": ["shot", "fell", "etc".] /* Key words to look for when trying to identify a death message. (As of 3/11/2019 this list is up to date) */
+    "SHOW_PLAYER_ME": false /* Shows when players use the /me command, e.g. **destruc7i0n** says hello */
 }
 ```
 
