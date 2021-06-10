@@ -2,16 +2,13 @@
 
 > Connects [Discord](https://discordapp.com/) and [Minecraft](https://minecraft.net) Servers by sending messages back and forth without any mods or plugins.
 
-## Notice
-This project has recently gone under a rewrite and the format for `config.json` is not directly backwards compatible with previous versions.
-See [below](#upgrade-instructions) for details.
-
 ## In Action
 ![discord-mc](http://i.thedestruc7i0n.ca/I5anbg.gif)
 
 ## Features
 - Sends message to and from Vanilla Minecraft servers
 - Can send messages regarding advancements, when players join and leave, and player deaths
+- Can be run on a remote machine or locally on the same machine (see `IS_LOCAL_FILE` in the options below)
 - Allows admins to send commands to Minecraft through Discord
  
 ## Installation and usage
@@ -30,11 +27,12 @@ rcon.password=<your password>
 rcon.port=<1-65535>
 ```
 
-Clone repository onto a server, edit ```config.json``` (see below for more info) and change any options.
+Clone repository onto a server, edit ```config.json``` (see below for details on the config file) and change any options.
 Then, in the repository folder:
 ```sh
-$ yarn
-$ yarn build && yarn start
+yarn # or npm install
+yarn build # or npm run build
+yarn start # or npm run start
 ```
 
 If you are running this on the same server as the MC server, enable the `IS_LOCAL_FILE` flag and update related options below.
@@ -43,35 +41,32 @@ Otherwise, perform the following command on the server hosting (in a screen/tmux
 ``` sh
 tail -F /PATH_TO_MINECRAFT_SERVER_INSTALL/logs/latest.log | grep --line-buffered ": <" | while read x ; do echo -ne $x | curl -X POST -d @- http://YOUR_URL/minecraft/hook ; done
 ```
-(The above command will also be given to you if you are not using a local file when you start up Shulker)
-
-You can also easily Deploy to Heroku and the like, just be sure to edit `YOUR_URL` in the command to match accordingly.
-
-[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
-
+(The above command will also be given to you if you are not using a local file when you first start up Shulker)
 
 ### Configuration
 ```js
 {
     "PORT": 8000, /* Port you want to run the webserver for the hook on */
     
-    "USE_WEBHOOKS": true, /* If you want to use snazzy webhooks */
+    "USE_WEBHOOKS": true, /* If you want to use webhooks rather than the Discord bot sending the messages (recommended) */
     "WEBHOOK_URL": "DISCORD_WEBHOOK_URL_HERE", /* Be sure to create a webhook in the channel settings and place it here! */
+
     "IGNORE_WEBHOOKS": true, /* Ignore any messages that are sent by webhooks. If disabled, then all webhooks but those sent from the configured webhook will be handled as well */
+
     "DISCORD_TOKEN": "<12345>", /* Discord bot token. [Click here](https://discordapp.com/developers/applications/me) to create you application and add a bot to it. */
     "DISCORD_CHANNEL_ID": "<channel>", /* Discord channel ID for for the discord bot. Enable developer mode in your Discord client, then right click channel and select "Copy ID". */
     "DISCORD_CHANNEL_NAME": "#<channel name>" /* The Discord channel name. It is recommended to use the ID if the bot is in multiple servers. The ID will take precedence. */
     "DISCORD_MESSAGE_TEMPLATE": "`%username%`:%message%", /* Message template to display in Discord */
-    
+
     "MINECRAFT_SERVER_RCON_IP": "127.0.0.1", /* Minecraft server IP (make sure you have enabled rcon) */
     "MINECRAFT_SERVER_RCON_PORT": <1-65535>, /* Minecraft server rcon port */
     "MINECRAFT_SERVER_RCON_PASSWORD": "<your password>", /* Minecraft server rcon password */
     "MINECRAFT_TELLRAW_TEMPLATE": "[{\"color\": \"white\", \"text\": \"<%username%> %message%\"}]", /* Tellraw template to display in Minecraft */
     "MINECRAFT_TELLRAW_DOESNT_EXIST": false, /* Minecraft doesn't have the tellraw command (<1.7.2), use say instead. !this may be dangerous! */
     "MINECRAFT_TELLRAW_DOESNT_EXIST_SAY_TEMPLATE": "<%username%> %message%", /* used when MINECRAFT_TELLRAW_DOESNT_EXIST is set to true. say template to display on minecraft, same as MINECRAFT_TELLRAW_TEMPLATE. */
-    
-    "IS_LOCAL_FILE": false, /* should tail the local file, may be a little buggy. please report any you find */
-    "LOCAL_FILE_PATH": "/usr/home/minecraft_server/logs/latest.log", /* the path to the local file if specified */
+
+    "IS_LOCAL_FILE": false, /* tail the local file specified at `LOCAL_FILE_PATH` */
+    "LOCAL_FILE_PATH": "/usr/home/minecraft_server/logs/latest.log", /* the path to the local file if `IS_LOCAL_FILE` is set */
 
     "SHOW_INIT_MESSAGE": true, /* Sends the message on boot if not a local file of what command to run */ 
 
