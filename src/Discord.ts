@@ -13,6 +13,8 @@ class Discord {
 
   channel: Snowflake
 
+  uuidCache: Map<string, string>
+
   constructor (config: Config, onReady?: () => void) {
     this.config = config
 
@@ -21,6 +23,8 @@ class Discord {
     this.client.on('message', (message: Message) => this.onMessage(message))
 
     this.channel = config.DISCORD_CHANNEL_ID || ''
+
+    this.uuidCache = new Map()
   }
 
   public async init () {
@@ -195,14 +199,33 @@ class Discord {
     return message
   }
 
-  private makeDiscordWebhook (username: string, message: string) {
+  private async getUUIDFromUsername (username: string): Promise<string | null> {
+    username = username.toLowerCase()
+    if (this.uuidCache.has(username)) return this.uuidCache.get(username)!
+    // otherwise fetch and store
+    try {
+      const response = await (await axios.get('https://api.mojang.com/users/profiles/minecraft/' + username)).data
+      const uuid = response.id
+      this.uuidCache.set(username, uuid)
+      return uuid
+    } catch (e) {
+      console.log(`[ERROR] Could not fetch uuid for ${username}, falling back to Steve for the skin`)
+      return null
+    }
+  }
+
+  private async makeDiscordWebhook (username: string, message: string) {
     message = this.replaceDiscordMentions(message)
+
+    const defaultHead = 'https://minotar.net/helm/c06f89064c8a49119c29ea1dbd1aab82/256.png' // MHF_Steve
+
+    const uuid = await this.getUUIDFromUsername(username)
 
     let avatarURL
     if (username === this.config.SERVER_NAME + ' - Server') { // use avatar for the server
-      avatarURL = this.config.SERVER_IMAGE || 'https://minotar.net/helm/Steve/256.png'
+      avatarURL = this.config.SERVER_IMAGE || defaultHead
     } else { // use avatar for player
-      avatarURL = `https://minotar.net/helm/${username}/256.png`
+      avatarURL = !!uuid ? `https://minotar.net/helm/${uuid}/256.png` : defaultHead
     }
 
     return {
@@ -222,7 +245,7 @@ class Discord {
 
   public async sendMessage (username: string, message: string) {
     if (this.config.USE_WEBHOOKS) {
-      const webhook = this.makeDiscordWebhook(username, message)
+      const webhook = await this.makeDiscordWebhook(username, message)
       try {
         await axios.post(this.config.WEBHOOK_URL, webhook, { headers: { 'Content-Type': 'application/json' } })
       } catch (e) {
