@@ -95,6 +95,10 @@ class Discord {
         }
       }
     }
+    // ensure that the message has a sender
+    if (!message.author) return
+    // ensure that the message is a text message
+    if (message.type !== 'DEFAULT') return
     // if the same user as the bot, ignore
     if (message.author.id === this.client.user.id) return
     // ignore any attachments
@@ -143,9 +147,10 @@ class Discord {
   }
 
   private makeMinecraftTellraw(message: Message): string {
+    const username = emojiStrip(message.author.username)
     const variables: {[index: string]: string} = {
-      username: emojiStrip(message.author.username),
-      nickname: message.member.nickname ? emojiStrip(message.member.nickname) : emojiStrip(message.author.username),
+      username,
+      nickname: !!message.member?.nickname ? emojiStrip(message.member.nickname) : username,
       discriminator: message.author.discriminator,
       text: emojiStrip(message.cleanContent)
     }
@@ -219,17 +224,16 @@ class Discord {
 
     const defaultHead = 'https://minotar.net/helm/c06f89064c8a49119c29ea1dbd1aab82/256.png' // MHF_Steve
 
-    const uuid = await this.getUUIDFromUsername(username)
-
     let avatarURL
     if (username === this.config.SERVER_NAME + ' - Server') { // use avatar for the server
       avatarURL = this.config.SERVER_IMAGE || defaultHead
     } else { // use avatar for player
+      const uuid = await this.getUUIDFromUsername(username)
       avatarURL = !!uuid ? `https://minotar.net/helm/${uuid}/256.png` : defaultHead
     }
 
     return {
-      username: username,
+      username,
       content: message,
       'avatar_url': avatarURL,
     }

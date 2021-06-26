@@ -4,3 +4,4 @@ yarn-error.log
 .idea
 build
 .DS_Store
+config.json

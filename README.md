@@ -27,7 +27,8 @@ rcon.password=<your password>
 rcon.port=<1-65535>
 ```
 
-Clone repository onto a server, edit ```config.json``` (see below for details on the config file) and change any options.
+Clone repository onto a server, copy ```config.example.json``` to ```config.json```, and edit it to enter your Discord bot details and to change any options (see below for details on the config file).
+
 Then, in the repository folder:
 ```sh
 yarn # or npm install
