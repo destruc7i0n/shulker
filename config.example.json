@@ -34,7 +34,7 @@
 
   "SERVER_NAME": "Shulker",
   "SERVER_IMAGE": "",
-  "HEAD_IMAGE_URL": "https://minotar.net/helm/%uuid%/256.png",
+  "HEAD_IMAGE_URL": "https://mc-heads.net/avatar/%uuid%/256",
   "DEFAULT_PLAYER_HEAD": "c06f89064c8a49119c29ea1dbd1aab82",
   "SHOW_SERVER_STATUS": false,
   "SHOW_PLAYER_CONN_STAT": false,

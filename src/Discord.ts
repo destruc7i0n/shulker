@@ -220,7 +220,7 @@ class Discord {
   }
 
   private getHeadUrl(uuid: string): string {
-    const url = this.config.HEAD_IMAGE_URL || 'https://minotar.net/helm/%uuid%/256.png'
+    const url = this.config.HEAD_IMAGE_URL || 'https://mc-heads.net/avatar/%uuid%/256'
     return url.replace(/%uuid%/, uuid)
   }
 
