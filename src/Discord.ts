@@ -219,17 +219,22 @@ class Discord {
     }
   }
 
+  private getHeadUrl(uuid: string): string {
+    const url = this.config.HEAD_IMAGE_URL || 'https://minotar.net/helm/%uuid%/256.png'
+    return url.replace(/%uuid%/, uuid)
+  }
+
   private async makeDiscordWebhook (username: string, message: string) {
     message = this.replaceDiscordMentions(message)
 
-    const defaultHead = 'https://minotar.net/helm/c06f89064c8a49119c29ea1dbd1aab82/256.png' // MHF_Steve
+    const defaultHead = this.getHeadUrl(this.config.DEFAULT_PLAYER_HEAD || 'c06f89064c8a49119c29ea1dbd1aab82') // MHF_Steve
 
     let avatarURL
     if (username === this.config.SERVER_NAME + ' - Server') { // use avatar for the server
       avatarURL = this.config.SERVER_IMAGE || defaultHead
     } else { // use avatar for player
       const uuid = await this.getUUIDFromUsername(username)
-      avatarURL = !!uuid ? `https://minotar.net/helm/${uuid}/256.png` : defaultHead
+      avatarURL = !!uuid ? this.getHeadUrl(uuid) : defaultHead
     }
 
     return {
