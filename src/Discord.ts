@@ -11,7 +11,7 @@ class Discord {
   config: Config
   client: Client
 
-  channel: Snowflake
+  channel: TextChannel | null
 
   uuidCache: Map<string, string>
 
@@ -22,7 +22,7 @@ class Discord {
     if (onReady) this.client.once('ready', () => onReady())
     this.client.on('message', (message: Message) => this.onMessage(message))
 
-    this.channel = config.DISCORD_CHANNEL_ID || ''
+    this.channel = null
 
     this.uuidCache = new Map()
   }
@@ -30,8 +30,16 @@ class Discord {
   public async init () {
     try {
       await this.client.login(this.config.DISCORD_TOKEN)
-      if (this.config.DISCORD_CHANNEL_NAME && !this.config.DISCORD_CHANNEL_ID)
+      if (this.config.DISCORD_CHANNEL_NAME && !this.config.DISCORD_CHANNEL_ID) {
         this.getChannelIdFromName(this.config.DISCORD_CHANNEL_NAME)
+      } else if (this.config.DISCORD_CHANNEL_ID) {
+        const channel = this.client.channels.find((ch) => ch.id === this.config.DISCORD_CHANNEL_ID && ch.type === 'text') as TextChannel
+        if (!channel) {
+          console.log(`[INFO] Could not find channel with ID ${this.config.DISCORD_CHANNEL_ID}. Please check that the ID is correct and that the bot has access to it.`)
+          process.exit(1)
+        }
+        this.channel = channel
+      }
     } catch (e) {
       console.log('[ERROR] Could not authenticate with Discord: ' + e)
       if (this.config.DEBUG) console.error(e)
@@ -44,7 +52,7 @@ class Discord {
     // @ts-ignore
     const channel: TextChannel = this.client.channels.find((c: TextChannel) => c.type === 'text' && c.name === name && !c.deleted)
     if (channel) {
-      this.channel = channel.id
+      this.channel = channel
       console.log(`[INFO] Found channel #${channel.name} (id: ${channel.id}) in the server "${channel.guild.name}"`)
     } else {
       console.log(`[INFO] Could not find channel ${name}! Check that the name is correct or use the ID of the channel instead (DISCORD_CHANNEL_ID)!`)
@@ -77,7 +85,7 @@ class Discord {
     // no channel, done
     if (!this.channel) return
     // don't want to check other channels
-    if (message.channel.id !== this.channel || message.channel.type !== 'text') return
+    if (message.channel.id !== this.channel.id || message.channel.type !== 'text') return
     // if using webhooks, ignore this!
     if (message.webhookID) {
       // backwards compatability with older config
@@ -262,12 +270,11 @@ class Discord {
         if (this.config.DEBUG) console.log(e)
       }
     } else {
-      // find the channel
-      const channel = this.client.channels.find((ch) => ch.id === this.config.DISCORD_CHANNEL_ID && ch.type === 'text') as TextChannel
-      if (channel) {
-        await channel.send(this.makeDiscordMessage(username, message))
-      } else {
-        console.log(`[ERROR] Could not find channel with ID ${this.config.DISCORD_CHANNEL_ID}!`)
+      try {
+        await this.channel!.send(this.makeDiscordMessage(username, message))
+      } catch (e) {
+        console.log('[ERROR] Could not send Discord message through bot!')
+        process.exit(1)
       }
     }
   }
