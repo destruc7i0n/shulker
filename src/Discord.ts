@@ -1,4 +1,4 @@
-import {Client, Message, Snowflake, TextChannel} from 'discord.js'
+import {Client, Intents, Message, TextChannel, User} from 'discord.js'
 
 import emojiStrip from 'emoji-strip'
 import axios from 'axios'
@@ -14,46 +14,58 @@ class Discord {
   channel: TextChannel | null
 
   uuidCache: Map<string, string>
+  mentionCache: Map<string, User>
 
   constructor (config: Config, onReady?: () => void) {
     this.config = config
 
-    this.client = new Client()
+    this.client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] })
     if (onReady) this.client.once('ready', () => onReady())
-    this.client.on('message', (message: Message) => this.onMessage(message))
+    this.client.on('messageCreate', (message: Message) => this.onMessage(message))
 
     this.channel = null
 
     this.uuidCache = new Map()
+    this.mentionCache = new Map()
   }
 
   public async init () {
     try {
       await this.client.login(this.config.DISCORD_TOKEN)
-      if (this.config.DISCORD_CHANNEL_NAME && !this.config.DISCORD_CHANNEL_ID) {
-        this.getChannelIdFromName(this.config.DISCORD_CHANNEL_NAME)
-      } else if (this.config.DISCORD_CHANNEL_ID) {
-        const channel = this.client.channels.find((ch) => ch.id === this.config.DISCORD_CHANNEL_ID && ch.type === 'text') as TextChannel
-        if (!channel) {
-          console.log(`[INFO] Could not find channel with ID ${this.config.DISCORD_CHANNEL_ID}. Please check that the ID is correct and that the bot has access to it.`)
-          process.exit(1)
-        }
-        this.channel = channel
-      }
     } catch (e) {
       console.log('[ERROR] Could not authenticate with Discord: ' + e)
       if (this.config.DEBUG) console.error(e)
+      process.exit(1)
+    }
+
+    if (this.config.DISCORD_CHANNEL_NAME && !this.config.DISCORD_CHANNEL_ID) {
+      await this.getChannelIdFromName(this.config.DISCORD_CHANNEL_NAME)
+    } else if (this.config.DISCORD_CHANNEL_ID) {
+      const channel = await this.client.channels.fetch(this.config.DISCORD_CHANNEL_ID) as TextChannel
+      if (!channel) {
+        console.log(`[INFO] Could not find channel with ID ${this.config.DISCORD_CHANNEL_ID}. Please check that the ID is correct and that the bot has access to it.`)
+        process.exit(1)
+      }
+      this.channel = channel
+    }
+
+    if (this.channel) {
+      console.log(`[INFO] Using channel #${this.channel.name} (id: ${this.channel.id}) in the server "${this.channel.guild.name}"`)
     }
   }
 
-  private getChannelIdFromName (name: string) {
+  private async getChannelIdFromName (name: string) {
     // remove the # if there is one
     if (name.startsWith('#')) name = name.substring(1, name.length)
-    // @ts-ignore
-    const channel: TextChannel = this.client.channels.find((c: TextChannel) => c.type === 'text' && c.name === name && !c.deleted)
+
+    // fetch all the channels in every server
+    for (const guild of this.client.guilds.cache.values()) {
+      await guild.channels.fetch()
+    }
+
+    const channel = this.client.channels.cache.find((c) => c.isText() && c.type === 'GUILD_TEXT' && c.name === name && !c.deleted)
     if (channel) {
-      this.channel = channel
-      console.log(`[INFO] Found channel #${channel.name} (id: ${channel.id}) in the server "${channel.guild.name}"`)
+      this.channel = channel as TextChannel
     } else {
       console.log(`[INFO] Could not find channel ${name}! Check that the name is correct or use the ID of the channel instead (DISCORD_CHANNEL_ID)!`)
       process.exit(1)
@@ -61,7 +73,7 @@ class Discord {
   }
 
   private parseDiscordWebhook (url: string) {
-    const re = /discordapp.com\/api\/webhooks\/([^\/]+)\/([^\/]+)/
+    const re = /discord[app]?.com\/api\/webhooks\/([^\/]+)\/([^\/]+)/
 
     // the is of the webhook
     let id = null
@@ -85,9 +97,9 @@ class Discord {
     // no channel, done
     if (!this.channel) return
     // don't want to check other channels
-    if (message.channel.id !== this.channel.id || message.channel.type !== 'text') return
+    if (message.channel.id !== this.channel.id || message.channel.type !== 'GUILD_TEXT') return
     // if using webhooks, ignore this!
-    if (message.webhookID) {
+    if (message.webhookId) {
       // backwards compatability with older config
       if (this.config.USE_WEBHOOKS && this.config.IGNORE_WEBHOOKS === undefined) return
 
@@ -97,7 +109,7 @@ class Discord {
       } else if (this.config.USE_WEBHOOKS) {
         // otherwise, ignore all webhooks that are not the same as this one
         const { id } = this.parseDiscordWebhook(this.config.WEBHOOK_URL)
-        if (id === message.webhookID) {
+        if (id === message.webhookId) {
           if (this.config.DEBUG) console.log('[INFO] Ignoring webhook from self')
           return
         }
@@ -108,9 +120,9 @@ class Discord {
     // ensure that the message is a text message
     if (message.type !== 'DEFAULT') return
     // if the same user as the bot, ignore
-    if (message.author.id === this.client.user.id) return
+    if (message.author.id === this.client.user?.id) return
     // ignore any attachments
-    if (message.attachments.array().length) return
+    if (message.attachments.size) return
 
     const rcon = new Rcon(this.config.MINECRAFT_SERVER_RCON_IP, this.config.MINECRAFT_SERVER_RCON_PORT, this.config.DEBUG)
     try {
@@ -121,9 +133,8 @@ class Discord {
     }
 
     let command = ''
-    if (this.config.ALLOW_SLASH_COMMANDS && this.config.SLASH_COMMAND_ROLES && message.cleanContent.startsWith('/')) {
-      const author = message.member
-      if (author.roles.find(r => this.config.SLASH_COMMAND_ROLES.includes(r.name))) {
+    if (this.config.ALLOW_SLASH_COMMANDS && this.config.SLASH_COMMAND_ROLES && message.cleanContent.startsWith('/') && message.member) {
+      if (message.member.roles.cache.find(r => this.config.SLASH_COMMAND_ROLES.includes(r.name))) {
         // send the raw command, can be dangerous...
         command = message.cleanContent
       } else {
@@ -184,7 +195,7 @@ class Discord {
       .replace(/%message%/g, variables.text)
   }
 
-  private replaceDiscordMentions(message: string): string {
+  private async replaceDiscordMentions(message: string): Promise<string> {
     const possibleMentions = message.match(/@[^#\s]*[#]?[0-9]{4}/gim)
     if (possibleMentions) {
       for (let mention of possibleMentions) {
@@ -192,9 +203,18 @@ class Discord {
         let username = mentionParts[0].replace('@', '')
         if (mentionParts.length > 1) {
           if (this.config.ALLOW_USER_MENTIONS) {
-            const user = this.client.users.find(user => user.username === username && user.discriminator === mentionParts[1])
+            let user = this.mentionCache.get(mention)
+            if (!user) {
+              // try fetching members by username to update cache
+              await this.channel!.guild.members.fetch({ query: username })
+              user = this.client.users.cache.find(user => user.username === username && user.discriminator === mentionParts[1])
+            }
+
             if (user) {
               message = message.replace(mention, '<@' + user.id + '>')
+              if (!this.mentionCache.has(mention)) this.mentionCache.set(mention, user)
+            } else {
+              console.log(`[ERROR] Could not find user by mention: "${mention}"`)
             }
           }
         }
@@ -233,8 +253,6 @@ class Discord {
   }
 
   private async makeDiscordWebhook (username: string, message: string) {
-    message = this.replaceDiscordMentions(message)
-
     const defaultHead = this.getHeadUrl(this.config.DEFAULT_PLAYER_HEAD || 'c06f89064c8a49119c29ea1dbd1aab82') // MHF_Steve
 
     let avatarURL
@@ -253,14 +271,14 @@ class Discord {
   }
 
   private makeDiscordMessage(username: string, message: string) {
-    message = this.replaceDiscordMentions(message)
-
     return this.config.DISCORD_MESSAGE_TEMPLATE
       .replace('%username%', username)
       .replace('%message%', message)
   }
 
   public async sendMessage (username: string, message: string) {
+    message = await this.replaceDiscordMentions(message)
+
     if (this.config.USE_WEBHOOKS) {
       const webhook = await this.makeDiscordWebhook(username, message)
       try {
