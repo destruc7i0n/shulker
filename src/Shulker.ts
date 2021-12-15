@@ -1,3 +1,6 @@
+import path from 'path'
+import fs from 'fs'
+
 import DiscordClient from './Discord'
 import Handler, { LogLine } from './MinecraftHandler'
 
@@ -12,10 +15,16 @@ class Shulker {
   }
 
   loadConfig () {
-    const configFile = (process.argv.length > 2) ? process.argv[2] : '../config.json'
+    const configFile = process.argv.length > 2 ? process.argv[2] : './config.json'
+    if (!fs.existsSync(configFile)) {
+      console.log('[ERROR] Could not find config file!')
+      return false
+    }
     console.log('[INFO] Using configuration file:', configFile)
-    this.config = require(configFile)
-    if (!this.config) {
+
+    try {
+      this.config = JSON.parse(fs.readFileSync(configFile, 'utf8'))
+    } catch (e) {
       console.log('[ERROR] Could not load config file!')
       return false
     }
