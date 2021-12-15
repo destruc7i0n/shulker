@@ -240,6 +240,7 @@ class Discord {
       const response = await (await axios.get('https://api.mojang.com/users/profiles/minecraft/' + username)).data
       const uuid = response.id
       this.uuidCache.set(username, uuid)
+      if (this.config.DEBUG) console.log(`[DEBUG] Fetched UUID ${uuid} for username "${username}"`)
       return uuid
     } catch (e) {
       console.log(`[ERROR] Could not fetch uuid for ${username}, falling back to Steve for the skin`)
