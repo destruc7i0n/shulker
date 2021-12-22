@@ -55,7 +55,7 @@ class Rcon {
   }
 
   public async auth (password: string): Promise<void> {
-    if (this.authed) { throw new Error('Already authed') }
+    if (this.authed) throw new Error('Already authed')
 
     if (this.connected){
       try {
@@ -88,7 +88,7 @@ class Rcon {
     const id = this.nextId
     this.nextId++
 
-    if (!this.connected) { throw new Error('Cannot send package while not connected') }
+    if (!this.connected) throw new Error('Cannot send package while not connected')
 
     const length = 14 + payload.length
     const buff = Buffer.alloc(length)
