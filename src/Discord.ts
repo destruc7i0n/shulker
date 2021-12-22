@@ -132,9 +132,10 @@ class Discord {
       if (this.config.DEBUG) console.error(e)
     }
 
-    let command = ''
+    let command: string | undefined;
     if (this.config.ALLOW_SLASH_COMMANDS && this.config.SLASH_COMMAND_ROLES && message.cleanContent.startsWith('/') && message.member) {
-      if (message.member.roles.cache.find(r => this.config.SLASH_COMMAND_ROLES.includes(r.name))) {
+      const hasSlashCommandRole = message.member.roles.cache.find(r => this.config.SLASH_COMMAND_ROLES.includes(r.name))
+      if (hasSlashCommandRole) {
         // send the raw command, can be dangerous...
         command = message.cleanContent
       } else {
@@ -151,16 +152,20 @@ class Discord {
     if (this.config.DEBUG) console.log(`[DEBUG] Sending command "${command}" to the server`)
 
     if (command) {
-      await rcon.command(command).catch((e) => {
+      let response: string | undefined;
+      try {
+        response = await rcon.command(command)
+      } catch (e) {
         console.log('[ERROR] Could not send command!')
         if (this.config.DEBUG) console.error(e)
-      }).then((str) => {
-        if (str === 'Unknown command. Try /help for a list of commands') {
-            console.error('[ERROR] Could not send command! (Unknown command)')
-            console.error('if this was a chat message, please look into MINECRAFT_TELLRAW_DOESNT_EXIST!')
-            console.error('command: ' + command)
+      }
+
+      if (response?.startsWith('Unknown command') || response?.startsWith('Unknown or incomplete command')) {
+        console.log('[ERROR] Could not send command! (Unknown command)')
+        if (command.startsWith('/tellraw')) {
+          console.log('Your Minecraft version may not support tellraw, please look into MINECRAFT_TELLRAW_DOESNT_EXIST!')
         }
-      })
+      }
     }
     rcon.close()
   }
@@ -178,15 +183,13 @@ class Discord {
       variables[v] = JSON.stringify(variables[v]).slice(1,-1)
     }
     
-    if (this.config.MINECRAFT_TELLRAW_DOESNT_EXIST)
-    {
-        return this.config.MINECRAFT_TELLRAW_DOESNT_EXIST_SAY_TEMPLATE
-                .replace(/%username%/g, variables.username)
-                .replace(/%nickname%/g, variables.nickname)
-                .replace(/%discriminator%/g, variables.discriminator)
-                .replace(/%message%/g, variables.text)
+    if (this.config.MINECRAFT_TELLRAW_DOESNT_EXIST) {
+      return this.config.MINECRAFT_TELLRAW_DOESNT_EXIST_SAY_TEMPLATE
+        .replace(/%username%/g, variables.username)
+        .replace(/%nickname%/g, variables.nickname)
+        .replace(/%discriminator%/g, variables.discriminator)
+        .replace(/%message%/g, variables.text)
     }
-
 
     return this.config.MINECRAFT_TELLRAW_TEMPLATE
       .replace(/%username%/g, variables.username)
