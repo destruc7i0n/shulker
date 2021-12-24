@@ -13,6 +13,8 @@
  
 ## Installation and usage
 
+Ensure you have Node v16.6+ installed. You can check the version you have installed with `node -v` in your terminal or command prompt.
+
 Create a Discord bot here: https://discordapp.com/developers/applications/me
 
 Then, add the bot to your Discord server using the following link, replace the Client ID with that of your bot.
