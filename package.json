@@ -24,7 +24,7 @@
   "homepage": "https://github.com/destruc7i0n/shulker#readme",
   "dependencies": {
     "axios": "^0.24.0",
-    "discord.js": "13.3.1",
+    "discord.js": "13.4.0",
     "emoji-strip": "^1.0.1",
     "express": "^4.17.1",
     "tail": "^2.2.4"
