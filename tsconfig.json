@@ -1,10 +1,7 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": [
-      "es2018",
-      "esnext"
-    ],
+    "lib": ["es2018", "esnext"],
     "allowJs": true,
     "esModuleInterop": true,
     "noImplicitAny": true,
@@ -13,14 +10,10 @@
     "strict": false,
     "strictNullChecks": true,
     "strictFunctionTypes": true,
+    "downlevelIteration": true,
     "outDir": "build/",
     "moduleResolution": "node"
   },
-  "include": [
-    "./src/**/*",
-    "./typings/**/*"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["./src/**/*", "./typings/**/*"],
+  "exclude": ["node_modules"]
 }

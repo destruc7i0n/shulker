@@ -58,7 +58,7 @@ class MinecraftHandler {
 
     if (logLine.startsWith('<')) {
       if (this.config.DEBUG){
-        console.log('[DEBUG]: A player sent a chat message')
+        console.log('[DEBUG] A player sent a chat message')
       }
 
       const re = new RegExp(this.config.REGEX_MATCH_CHAT_MC)
@@ -84,18 +84,18 @@ class MinecraftHandler {
     ) {
       // handle disconnection etc.
       if (this.config.DEBUG){
-        console.log(`[DEBUG]: A player's connection status changed`)
+        console.log(`[DEBUG] A player's connection status changed`)
       }
 
       return { username: serverUsername, message: logLine }
     } else if (this.config.SHOW_SERVER_STATUS && (logLine.includes('Starting minecraft server'))) {
         if (this.config.DEBUG) {
-          console.log('[DEBUG]: Server has started')
+          console.log('[DEBUG] Server has started')
         }
         return { username: serverUsername, message: 'Server is online' }
     } else if (this.config.SHOW_SERVER_STATUS && (logLine.includes('Stopping the server'))) {
         if (this.config.DEBUG) {
-          console.log('[DEBUG]: Server has stopped')
+          console.log('[DEBUG] Server has stopped')
         }
         return { username: serverUsername, message: 'Server is offline' }
     } else if (this.config.SHOW_PLAYER_ADVANCEMENT && logLine.includes('made the advancement')) {
