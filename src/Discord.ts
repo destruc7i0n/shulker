@@ -292,17 +292,20 @@ class Discord {
       const webhook = await this.makeDiscordWebhook(username, message)
       try {
         await axios.post(this.config.WEBHOOK_URL, webhook, { headers: { 'Content-Type': 'application/json' } })
+        return
       } catch (e) {
-        console.log('[ERROR] Could not send Discord message through WebHook!')
+        console.log('[ERROR] Could not send Discord message through WebHook! Falling back to sending through bot.')
         if (this.config.DEBUG) console.log(e)
       }
-    } else {
-      try {
-        await this.channel!.send(this.makeDiscordMessage(username, message))
-      } catch (e) {
-        console.log('[ERROR] Could not send Discord message through bot!')
-        process.exit(1)
-      }
+    }
+
+    const messageContent = this.makeDiscordMessage(username, message)
+
+    try {
+      await this.channel!.send(messageContent)
+    } catch (e) {
+      console.log('[ERROR] Could not send Discord message through bot!')
+      process.exit(1)
     }
   }
 }
