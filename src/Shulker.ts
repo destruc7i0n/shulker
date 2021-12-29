@@ -1,18 +1,14 @@
-import path from 'path'
 import fs from 'fs'
 
 import DiscordClient from './Discord'
 import Handler, { LogLine } from './MinecraftHandler'
 
-import { Config } from './Config'
+import type { Config } from './Config'
 
 class Shulker {
   config: Config
   discordClient: DiscordClient
   handler: Handler
-
-  constructor() {
-  }
 
   loadConfig () {
     const configFile = process.argv.length > 2 ? process.argv[2] : './config.json'

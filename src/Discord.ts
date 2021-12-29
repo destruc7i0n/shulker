@@ -1,11 +1,12 @@
-import {Client, Intents, Message, TextChannel, User} from 'discord.js'
+import { Client, Intents, Message, TextChannel, User } from 'discord.js'
 
 import emojiStrip from 'emoji-strip'
 import axios from 'axios'
 
-import { Config } from './Config'
+import type { Config } from './Config'
 
 import Rcon from './Rcon'
+import { escapeUnicode } from './lib/util'
 
 class Discord {
   config: Config
@@ -143,9 +144,9 @@ class Discord {
       }
     } else {
       if (this.config.MINECRAFT_TELLRAW_DOESNT_EXIST) {
-        command = `/say ${this.makeMinecraftTellraw(message)}`
+        command = `/say ${this.makeMinecraftMessage(message)}`
       } else {
-        command = `/tellraw @a ${this.makeMinecraftTellraw(message)}`
+        command = `/tellraw @a ${this.makeMinecraftMessage(message)}`
       }
     }
 
@@ -170,17 +171,19 @@ class Discord {
     rcon.close()
   }
 
-  private makeMinecraftTellraw(message: Message): string {
+  private makeMinecraftMessage(message: Message): string {
     const username = emojiStrip(message.author.username)
+
     const variables: {[index: string]: string} = {
       username,
       nickname: !!message.member?.nickname ? emojiStrip(message.member.nickname) : username,
       discriminator: message.author.discriminator,
-      text: emojiStrip(message.cleanContent)
+      text: emojiStrip(message.cleanContent),
     }
-    // hastily use JSON to encode the strings
-    for (const v of Object.keys(variables)) {
-      variables[v] = JSON.stringify(variables[v]).slice(1,-1)
+
+    // use JSON to encode the strings for tellraw
+    for (const [k, v] of Object.entries(variables)) {
+      variables[k] = JSON.stringify(v).slice(1,-1)
     }
     
     if (this.config.MINECRAFT_TELLRAW_DOESNT_EXIST) {
@@ -190,6 +193,8 @@ class Discord {
         .replace(/%discriminator%/g, variables.discriminator)
         .replace(/%message%/g, variables.text)
     }
+
+    variables.text = escapeUnicode(variables.text)
 
     return this.config.MINECRAFT_TELLRAW_TEMPLATE
       .replace(/%username%/g, variables.username)
