@@ -50,6 +50,7 @@ tail -F /PATH_TO_MINECRAFT_SERVER_INSTALL/logs/latest.log | grep --line-buffered
 ```js
 {
     "PORT": 8000, /* Port you want to run the webserver for the hook on */
+    "DEBUG": false, /* Dev debugging */
     
     "USE_WEBHOOKS": true, /* If you want to use webhooks rather than the Discord bot sending the messages (recommended) */
     "WEBHOOK_URL": "DISCORD_WEBHOOK_URL_HERE", /* Be sure to create a webhook in the channel settings and place it here! */
@@ -68,8 +69,9 @@ tail -F /PATH_TO_MINECRAFT_SERVER_INSTALL/logs/latest.log | grep --line-buffered
     "MINECRAFT_TELLRAW_DOESNT_EXIST": false, /* Minecraft doesn't have the tellraw command (<1.7.2), use say instead. !this may be dangerous! */
     "MINECRAFT_TELLRAW_DOESNT_EXIST_SAY_TEMPLATE": "<%username%> %message%", /* used when MINECRAFT_TELLRAW_DOESNT_EXIST is set to true. say template to display on minecraft, same as MINECRAFT_TELLRAW_TEMPLATE. */
 
-    "IS_LOCAL_FILE": false, /* tail the local file specified at `LOCAL_FILE_PATH` */
+    "IS_LOCAL_FILE": true, /* tail the local file specified at `LOCAL_FILE_PATH` */
     "LOCAL_FILE_PATH": "/usr/home/minecraft_server/logs/latest.log", /* the path to the local file if `IS_LOCAL_FILE` is set */
+    "FS_WATCH_FILE": false, /* use node's watchFile rather than watch. see FAQ for more details */
 
     "SHOW_INIT_MESSAGE": true, /* Sends the message on boot if not a local file of what command to run */ 
 
@@ -82,13 +84,12 @@ tail -F /PATH_TO_MINECRAFT_SERVER_INSTALL/logs/latest.log | grep --line-buffered
     "REGEX_SERVER_PREFIX": "\\[Server thread/INFO\\]:", /* What the lines of the log should start with */
     "REGEX_MATCH_CHAT_MC": "^<([^>]*)> (.*)", /* What to match for chat (best to leave as default) */
     "REGEX_IGNORED_CHAT": "packets too frequently", /* What to ignore, you can put any regex for swear words for example and it will  be ignored */
-    "DEBUG": false, /* Dev debugging */
 
     "SERVER_NAME": "Shulker", /* The username used when displaying any server information in chat, e.g., Server - Shulker : Server message here*/
     "SERVER_IMAGE": "", /* Image for the server when sending such messages (if enabled below). Only for WebHooks. */
     "HEAD_IMAGE_URL": "https://mc-heads.net/avatar/%uuid%/256", /* Url to get the heads for the webhook, %uuid% is replaced with the uuid of the player */
     "DEFAULT_PLAYER_HEAD": "c06f89064c8a49119c29ea1dbd1aab82", /* UUID of player with the default head to use (currently is MHF_Steve) */
-    "SHOW_SERVER_STATUS: false, /* Shows when the server turns on and off e.g., Server - Shulker : Server is online */
+    "SHOW_SERVER_STATUS": false, /* Shows when the server turns on and off e.g., Server - Shulker : Server is online */
     "SHOW_PLAYER_CONN_STAT": false, /* Shows player connection status in chat, e.g., Server - Shulker : TheMachine joined the game */
     "SHOW_PLAYER_ADVANCEMENT": false, /* Shows when players earn advancements in chat, e.g., Server - Shulker : TheMachine has made the advacement [MEME - Machine] */
     "SHOW_PLAYER_DEATH": false, /* Shows when players die in chat, e.g., Server - Shulker : TheMachine was blown up by creeper */
@@ -104,6 +105,10 @@ tail -F /PATH_TO_MINECRAFT_SERVER_INSTALL/logs/latest.log | grep --line-buffered
 * Why can't I send commands even if I have the option enabled?
   - Make sure that you have a role on the server which is put in the array `SLASH_COMMAND_ROLES` case-sensitive.
     - e.g. `"SLASH_COMMAND_ROLES": ["Admin"]`
+
+* I am using a local file and no messages are being sent!
+  - Enable `DEBUG` in the config to check for any errors.
+  - If you are on Windows, try enabling `FS_WATCH_FILE`.
 
 ## Upgrade Instructions
 From version 2 to version 3:

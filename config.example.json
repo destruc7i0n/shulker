@@ -1,5 +1,6 @@
 {
   "PORT": 8000,
+  "DEBUG": false,
 
   "USE_WEBHOOKS": true,
   "WEBHOOK_URL": "DISCORD_WEBHOOK_URL_HERE",
@@ -16,8 +17,9 @@
   "MINECRAFT_TELLRAW_DOESNT_EXIST": false,
   "MINECRAFT_TELLRAW_DOESNT_EXIST_SAY_TEMPLATE": "<%username%> %message%",
 
-  "IS_LOCAL_FILE": false,
+  "IS_LOCAL_FILE": true,
   "LOCAL_FILE_PATH": "/usr/home/minecraft_server/logs/latest.log",
+  "FS_WATCH_FILE": false,
 
   "SHOW_INIT_MESSAGE": true,
 
@@ -30,7 +32,6 @@
   "REGEX_SERVER_PREFIX": "\\[Server thread/INFO\\]:",
   "REGEX_MATCH_CHAT_MC": "^<([^>]*)> (.*)",
   "REGEX_IGNORED_CHAT": "packets too frequently",
-  "DEBUG": false,
 
   "SERVER_NAME": "Shulker",
   "SERVER_IMAGE": "",

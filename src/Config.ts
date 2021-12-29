@@ -1,5 +1,6 @@
 export interface Config {
   PORT: number
+  DEBUG: boolean
 
   USE_WEBHOOKS: boolean
   WEBHOOK_URL: string
@@ -18,6 +19,7 @@ export interface Config {
 
   IS_LOCAL_FILE: boolean
   LOCAL_FILE_PATH: string
+  FS_WATCH_FILE: boolean
 
   PATH_TO_MINECRAFT_SERVER_INSTALL?: string
   YOUR_URL?: string
@@ -33,7 +35,6 @@ export interface Config {
   REGEX_SERVER_PREFIX: string
   REGEX_MATCH_CHAT_MC: string
   REGEX_IGNORED_CHAT: string
-  DEBUG: boolean
 
   SERVER_NAME: string
   SERVER_IMAGE: string
