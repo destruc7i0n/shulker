@@ -10,6 +10,11 @@ class Shulker {
   discordClient: DiscordClient
   handler: Handler
 
+  readonly deprecatedConfigs: string[] = ['DEATH_KEY_WORDS'];
+
+  constructor() {
+  }
+
   loadConfig () {
     const configFile = process.argv.length > 2 ? process.argv[2] : './config.json'
     if (!fs.existsSync(configFile)) {
@@ -23,6 +28,12 @@ class Shulker {
     } catch (e) {
       console.log('[ERROR] Could not load config file!')
       return false
+    }
+
+    for (let option of this.deprecatedConfigs) {
+      if (this.config.hasOwnProperty(option)) {
+        console.log('[WARN] Using deprecated config option ' + option + '. Check README.md for current options.')
+      }
     }
 
     if (this.config.USE_WEBHOOKS) {

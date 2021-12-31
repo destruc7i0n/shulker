@@ -34,6 +34,7 @@ export interface Config {
   WEBHOOK: string
   REGEX_SERVER_PREFIX: string
   REGEX_MATCH_CHAT_MC: string
+  REGEX_DEATH_MESSAGE: string
   REGEX_IGNORED_CHAT: string
 
   SERVER_NAME: string
@@ -45,5 +46,4 @@ export interface Config {
   SHOW_PLAYER_ADVANCEMENT: boolean
   SHOW_PLAYER_DEATH: boolean
   SHOW_PLAYER_ME: boolean
-  DEATH_KEY_WORDS: string[]
 }

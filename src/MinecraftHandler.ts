@@ -111,15 +111,14 @@ class MinecraftHandler {
         return { username: serverUsername, message: `**${username}** ${rest}` }
       }
     } else if (this.config.SHOW_PLAYER_DEATH) {
-      for (let word of this.config.DEATH_KEY_WORDS){
-        if (data.includes(word)){
-          if (this.config.DEBUG) {
-            console.log(
-              `[DEBUG] A player died. Matched key word "${word}"`
-            )
-          }
-          return { username: serverUsername, message: logLine }
+      const death_msg_re = new RegExp(this.config.REGEX_DEATH_MESSAGE)
+      const death_msg_match = logLine.match(death_msg_re)
+
+      if (death_msg_match) {
+        if (this.config.DEBUG) {
+          console.log(`[DEBUG] A player died. Matched on "${death_msg_match[1]}"`)
         }
+        return { username: serverUsername, message: logLine }
       }
     }
 
