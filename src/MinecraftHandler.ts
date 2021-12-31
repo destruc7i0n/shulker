@@ -111,12 +111,12 @@ class MinecraftHandler {
         return { username: serverUsername, message: `**${username}** ${rest}` }
       }
     } else if (this.config.SHOW_PLAYER_DEATH) {
-      const death_msg_re = new RegExp(this.config.REGEX_DEATH_MESSAGE)
-      const death_msg_match = logLine.match(death_msg_re)
+      const deathMessageRegex = new RegExp(this.config.REGEX_DEATH_MESSAGE ?? '^[\\w_]+ died')
+      const deathMessageMatch = logLine.match(deathMessageRegex)
 
-      if (death_msg_match) {
+      if (deathMessageMatch) {
         if (this.config.DEBUG) {
-          console.log(`[DEBUG] A player died. Matched on "${death_msg_match[1]}"`)
+          console.log(`[DEBUG] A player died. Matched on "${deathMessageMatch[1]}"`)
         }
         return { username: serverUsername, message: logLine }
       }

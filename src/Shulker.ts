@@ -10,7 +10,7 @@ class Shulker {
   discordClient: DiscordClient
   handler: Handler
 
-  readonly deprecatedConfigs: string[] = ['DEATH_KEY_WORDS'];
+  readonly deprecatedConfigs: string[] = ['DEATH_KEY_WORDS']
 
   constructor() {
   }
@@ -30,7 +30,7 @@ class Shulker {
       return false
     }
 
-    for (let option of this.deprecatedConfigs) {
+    for (const option of this.deprecatedConfigs) {
       if (this.config.hasOwnProperty(option)) {
         console.log('[WARN] Using deprecated config option ' + option + '. Check README.md for current options.')
       }
