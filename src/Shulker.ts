@@ -5,14 +5,22 @@ import Handler, { LogLine } from './MinecraftHandler'
 
 import type { Config } from './Config'
 
+interface OutdatedConfigMessages {
+  [key: string]: string
+}
+
 class Shulker {
   config: Config
   discordClient: DiscordClient
   handler: Handler
 
-  readonly deprecatedConfigs: string[] = ['DEATH_KEY_WORDS']
+  readonly deprecatedConfigs: OutdatedConfigMessages = {
+    'DEATH_KEY_WORDS': '`DEATH_KEY_WORDS` has been replaced with `REGEX_DEATH_MESSAGE`. Please update this from the latest example config.'
+  }
 
-  constructor() {
+  readonly removedConfigs: OutdatedConfigMessages = {
+    'DISCORD_CHANNEL_NAME': 'Please remove this config line. Use the channel ID with `DISCORD_CHANNEL_ID` rather than the channel name.',
+    'SLASH_COMMAND_ROLES': 'Please use the slash command role IDs with `SLASH_COMMAND_ROLES_IDS` instead.'
   }
 
   loadConfig () {
@@ -30,10 +38,22 @@ class Shulker {
       return false
     }
 
-    for (const option of this.deprecatedConfigs) {
-      if (this.config.hasOwnProperty(option)) {
-        console.log('[WARN] Using deprecated config option ' + option + '. Check README.md for current options.')
+    for (const configKey of Object.keys(this.deprecatedConfigs)) {
+      if (this.config.hasOwnProperty(configKey)) {
+        console.log('[WARN] Using deprecated config option ' + configKey + '. Check README.md for current options. These options will be removed in a future release.')
+        console.log('       ' + this.deprecatedConfigs[configKey])
       }
+    }
+
+    const hasRemovedConfig = Object.keys(this.config).some(key => Object.keys(this.removedConfigs).includes(key))
+    if (hasRemovedConfig) {
+      for (const configKey of Object.keys(this.removedConfigs)) {
+        if (this.config.hasOwnProperty(configKey)) {
+          console.log('[ERROR] Using removed config option ' + configKey + '. Check README.md for current options.')
+          console.log('        ' + this.removedConfigs[configKey])
+        }
+      }
+      process.exit(1)
     }
 
     if (this.config.USE_WEBHOOKS) {
