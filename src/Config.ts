@@ -39,7 +39,9 @@ export interface Config {
   SERVER_NAME: string
   SERVER_IMAGE: string
   HEAD_IMAGE_URL: string
+  UUID_API_URL: string
   DEFAULT_PLAYER_HEAD: string
+
   SHOW_SERVER_STATUS: boolean
   SHOW_PLAYER_CONN_STAT: boolean
   SHOW_PLAYER_ADVANCEMENT: boolean

@@ -36,7 +36,9 @@
   "SERVER_NAME": "Shulker",
   "SERVER_IMAGE": "",
   "HEAD_IMAGE_URL": "https://mc-heads.net/avatar/%uuid%/256",
+  "UUID_API_URL": "https://api.mojang.com/users/profiles/minecraft/%username%",
   "DEFAULT_PLAYER_HEAD": "c06f89064c8a49119c29ea1dbd1aab82",
+
   "SHOW_SERVER_STATUS": false,
   "SHOW_PLAYER_CONN_STAT": false,
   "SHOW_PLAYER_ADVANCEMENT": false,

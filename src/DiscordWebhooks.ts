@@ -1,4 +1,4 @@
-import { WebhookClient } from 'discord.js'
+import { WebhookClient, WebhookMessageOptions } from 'discord.js'
 
 import axios from 'axios'
 
@@ -27,7 +27,6 @@ class DiscordWebhooks {
     const { id, token } = this.parseDiscordWebhook(this.config.WEBHOOK_URL)
 
     if (!id || !token) {
-      console.log('[ERROR] Invalid Discord Webhook!')
       process.exit(1)
     }
 
@@ -49,10 +48,8 @@ class DiscordWebhooks {
       console.log('[WARN] The Webhook URL may not be valid!')
     } else {
       const match = url.match(re)
-      if (match) {
-        id = match[1]
-        token = match[2]
-      }
+      id = match?.[1]
+      token = match?.[2]
     }
 
     return { id, token }
@@ -63,7 +60,9 @@ class DiscordWebhooks {
     if (this.uuidCache.has(username)) return this.uuidCache.get(username)!
     // otherwise fetch and store
     try {
-      const response = await (await axios.get('https://api.mojang.com/users/profiles/minecraft/' + username)).data
+      const response = await (
+        await axios.get((this.config.UUID_API_URL ?? 'https://api.mojang.com/users/profiles/minecraft/%username%').replace('%username%', username))
+      ).data
       const uuid = response.id
       this.uuidCache.set(username, uuid)
       if (this.config.DEBUG) console.log(`[DEBUG] Fetched UUID ${uuid} for username "${username}"`)
@@ -82,19 +81,19 @@ class DiscordWebhooks {
   private async makeDiscordWebhook (username: string, message: string) {
     const defaultHead = this.getHeadUrl(this.config.DEFAULT_PLAYER_HEAD || 'c06f89064c8a49119c29ea1dbd1aab82') // MHF_Steve
 
-    let avatarURL
-    if (username === this.config.SERVER_NAME + ' - Server') { // use avatar for the server
-      avatarURL = this.config.SERVER_IMAGE || defaultHead
-    } else { // use avatar for player
-      const uuid = await this.getUUIDFromUsername(username)
-      avatarURL = !!uuid ? this.getHeadUrl(uuid) : defaultHead
-    }
-
-    return {
+    const messsageOptions: WebhookMessageOptions = {
       username,
       content: message,
-      avatarURL,
     }
+
+    if (username === this.config.SERVER_NAME + ' - Server') { // use avatar for the server
+      if (this.config.SERVER_IMAGE) messsageOptions.avatarURL = this.config.SERVER_IMAGE
+    } else { // use avatar for player
+      const uuid = await this.getUUIDFromUsername(username)
+      messsageOptions.avatarURL = !!uuid ? this.getHeadUrl(uuid) : defaultHead
+    }
+
+    return messsageOptions
   }
 
   public async sendMessage (username: string, message: string) {

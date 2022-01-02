@@ -15,7 +15,7 @@
 - Allows members with specific roles to send commands to Minecraft through Discord
 - Can be run on a remote machine or locally on the same machine (see `IS_LOCAL_FILE` in the options below)
  
-## Installation and usage
+## Installation
 
 Ensure you have Node v16.6+ installed. You can check the version you have installed with `node -v` in your terminal or command prompt.
 
@@ -96,7 +96,9 @@ npm run start
     "SERVER_NAME": "Shulker", /* The username used when displaying any server information in chat, e.g., Server - Shulker : Server message here*/
     "SERVER_IMAGE": "", /* Image for the server when sending such messages (if enabled below). Only for WebHooks. */
     "HEAD_IMAGE_URL": "https://mc-heads.net/avatar/%uuid%/256", /* Url to get the heads for the webhook, %uuid% is replaced with the uuid of the player */
+    "UUID_API_URL": "https://api.mojang.com/users/profiles/minecraft/%username%", /* Url to fetch the uuids from. %username% is replaced with the username of the player. expects uuid at top level key `id` (like the mojang api) */
     "DEFAULT_PLAYER_HEAD": "c06f89064c8a49119c29ea1dbd1aab82", /* UUID of player with the default head to use (currently is MHF_Steve) */
+
     "SHOW_SERVER_STATUS": false, /* Shows when the server turns on and off e.g., Server - Shulker : Server is online */
     "SHOW_PLAYER_CONN_STAT": false, /* Shows player connection status in chat, e.g., Server - Shulker : TheMachine joined the game */
     "SHOW_PLAYER_ADVANCEMENT": false, /* Shows when players earn advancements in chat, e.g., Server - Shulker : TheMachine has made the advacement [MEME - Machine] */
