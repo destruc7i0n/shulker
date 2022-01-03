@@ -41,7 +41,7 @@ class DiscordWebhooks {
   }
 
   private parseDiscordWebhook (url: string) {
-    const re = /discord[app]?.com\/api\/webhooks\/([^\/]+)\/([^\/]+)/
+    const re = /discord(?:app)?.com\/api\/webhooks\/([^\/]+)\/([^\/]+)/
 
     // the is of the webhook
     let id = null

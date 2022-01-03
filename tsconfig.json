@@ -12,8 +12,9 @@
     "strictFunctionTypes": true,
     "downlevelIteration": true,
     "outDir": "build/",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "baseUrl": "."
   },
-  "include": ["./src/**/*", "./typings/**/*"],
+  "include": ["**/*.ts"],
   "exclude": ["node_modules"]
 }

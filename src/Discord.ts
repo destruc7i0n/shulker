@@ -190,17 +190,15 @@ class Discord {
             }
           }
         }
-
-        if (['here', 'everyone'].includes(username)) {
-          // remove these large pings
-          if (!this.config.ALLOW_HERE_EVERYONE_MENTIONS) {
-            message = message
-              .replace('@everyone', '@ everyone')
-              .replace('@here', '@ here')
-          }
-        }
       }
     }
+
+    if (!this.config.ALLOW_HERE_EVERYONE_MENTIONS) {
+      message = message
+        .replace('@everyone', '@ everyone')
+        .replace('@here', '@ here')
+    }
+
     return message
   }
 
