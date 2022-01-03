@@ -34,6 +34,10 @@ class DiscordWebhooks {
     this.token = token
 
     this.webhookClient = new WebhookClient({ id, token })
+
+    if (this.config.DEBUG) {
+      this.webhookClient.on('rateLimit', (data) => console.log(`[DEBUG] Webhook is being rate limited. Timeout: ${data.timeout / 1000}s, Limit: ${data.limit}`))
+    }
   }
 
   private parseDiscordWebhook (url: string) {

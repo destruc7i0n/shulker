@@ -75,7 +75,7 @@ class Discord {
       } else if (this.config.USE_WEBHOOKS) {
         // otherwise, ignore all webhooks that are not the same as this one
         if (this.webhookClient!.id === message.webhookId) {
-          if (this.config.DEBUG) console.log('[INFO] Ignoring webhook from self')
+          if (this.config.DEBUG) console.log('[DEBUG] Ignoring webhook from self')
           return
         }
       }
