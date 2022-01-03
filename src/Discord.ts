@@ -1,20 +1,20 @@
 import { Client, Intents, Message, TextChannel, User } from 'discord.js'
 
 import emojiStrip from 'emoji-strip'
-import axios from 'axios'
 
 import type { Config } from './Config'
 
 import Rcon from './Rcon'
+import DiscordWebhooks from './DiscordWebhooks'
 import { escapeUnicode } from './lib/util'
 
 class Discord {
   config: Config
   client: Client
+  webhookClient: DiscordWebhooks | null
 
   channel: TextChannel | null
 
-  uuidCache: Map<string, string>
   mentionCache: Map<string, User>
 
   constructor (config: Config, onReady?: () => void) {
@@ -24,9 +24,10 @@ class Discord {
     if (onReady) this.client.once('ready', () => onReady())
     this.client.on('messageCreate', (message: Message) => this.onMessage(message))
 
+    this.webhookClient = null
+
     this.channel = null
 
-    this.uuidCache = new Map()
     this.mentionCache = new Map()
   }
 
@@ -39,9 +40,12 @@ class Discord {
       process.exit(1)
     }
 
-    if (this.config.DISCORD_CHANNEL_NAME && !this.config.DISCORD_CHANNEL_ID) {
-      await this.getChannelIdFromName(this.config.DISCORD_CHANNEL_NAME)
-    } else if (this.config.DISCORD_CHANNEL_ID) {
+    if (this.config.USE_WEBHOOKS) {
+      this.webhookClient = new DiscordWebhooks(this.config)
+      this.webhookClient.init()
+    }
+
+    if (this.config.DISCORD_CHANNEL_ID) {
       const channel = await this.client.channels.fetch(this.config.DISCORD_CHANNEL_ID) as TextChannel
       if (!channel) {
         console.log(`[INFO] Could not find channel with ID ${this.config.DISCORD_CHANNEL_ID}. Please check that the ID is correct and that the bot has access to it.`)
@@ -53,45 +57,6 @@ class Discord {
     if (this.channel) {
       console.log(`[INFO] Using channel #${this.channel.name} (id: ${this.channel.id}) in the server "${this.channel.guild.name}"`)
     }
-  }
-
-  private async getChannelIdFromName (name: string) {
-    // remove the # if there is one
-    if (name.startsWith('#')) name = name.substring(1, name.length)
-
-    // fetch all the channels in every server
-    for (const guild of this.client.guilds.cache.values()) {
-      await guild.channels.fetch()
-    }
-
-    const channel = this.client.channels.cache.find((c) => c.isText() && c.type === 'GUILD_TEXT' && c.name === name && !c.deleted)
-    if (channel) {
-      this.channel = channel as TextChannel
-    } else {
-      console.log(`[INFO] Could not find channel ${name}! Check that the name is correct or use the ID of the channel instead (DISCORD_CHANNEL_ID)!`)
-      process.exit(1)
-    }
-  }
-
-  private parseDiscordWebhook (url: string) {
-    const re = /discord[app]?.com\/api\/webhooks\/([^\/]+)\/([^\/]+)/
-
-    // the is of the webhook
-    let id = null
-    let token = null
-
-    if (!re.test(url)) {
-      // In case the url changes at some point, I will warn if it still works
-      console.log('[WARN] The Webhook URL may not be valid!')
-    } else {
-      const match = url.match(re)
-      if (match) {
-        id = match[1]
-        token = match[2]
-      }
-    }
-
-    return { id, token }
   }
 
   private async onMessage (message: Message) {
@@ -109,8 +74,7 @@ class Discord {
         return
       } else if (this.config.USE_WEBHOOKS) {
         // otherwise, ignore all webhooks that are not the same as this one
-        const { id } = this.parseDiscordWebhook(this.config.WEBHOOK_URL)
-        if (id === message.webhookId) {
+        if (this.webhookClient!.id === message.webhookId) {
           if (this.config.DEBUG) console.log('[INFO] Ignoring webhook from self')
           return
         }
@@ -134,8 +98,8 @@ class Discord {
     }
 
     let command: string | undefined;
-    if (this.config.ALLOW_SLASH_COMMANDS && this.config.SLASH_COMMAND_ROLES && message.cleanContent.startsWith('/') && message.member) {
-      const hasSlashCommandRole = message.member.roles.cache.find(r => this.config.SLASH_COMMAND_ROLES.includes(r.name))
+    if (this.config.ALLOW_SLASH_COMMANDS && this.config.SLASH_COMMAND_ROLES_IDS && message.cleanContent.startsWith('/') && message.member) {
+      const hasSlashCommandRole = this.config.SLASH_COMMAND_ROLES_IDS.some(id => message.member?.roles.cache.get(id))
       if (hasSlashCommandRole) {
         // send the raw command, can be dangerous...
         command = message.cleanContent
@@ -164,7 +128,7 @@ class Discord {
       if (response?.startsWith('Unknown command') || response?.startsWith('Unknown or incomplete command')) {
         console.log('[ERROR] Could not send command! (Unknown command)')
         if (command.startsWith('/tellraw')) {
-          console.log('Your Minecraft version may not support tellraw, please look into MINECRAFT_TELLRAW_DOESNT_EXIST!')
+          console.log('[INFO] Your Minecraft version may not support tellraw, please check MINECRAFT_TELLRAW_DOESNT_EXIST in the README')
         }
       }
     }
@@ -240,45 +204,6 @@ class Discord {
     return message
   }
 
-  private async getUUIDFromUsername (username: string): Promise<string | null> {
-    username = username.toLowerCase()
-    if (this.uuidCache.has(username)) return this.uuidCache.get(username)!
-    // otherwise fetch and store
-    try {
-      const response = await (await axios.get('https://api.mojang.com/users/profiles/minecraft/' + username)).data
-      const uuid = response.id
-      this.uuidCache.set(username, uuid)
-      if (this.config.DEBUG) console.log(`[DEBUG] Fetched UUID ${uuid} for username "${username}"`)
-      return uuid
-    } catch (e) {
-      console.log(`[ERROR] Could not fetch uuid for ${username}, falling back to Steve for the skin`)
-      return null
-    }
-  }
-
-  private getHeadUrl(uuid: string): string {
-    const url = this.config.HEAD_IMAGE_URL || 'https://mc-heads.net/avatar/%uuid%/256'
-    return url.replace(/%uuid%/, uuid)
-  }
-
-  private async makeDiscordWebhook (username: string, message: string) {
-    const defaultHead = this.getHeadUrl(this.config.DEFAULT_PLAYER_HEAD || 'c06f89064c8a49119c29ea1dbd1aab82') // MHF_Steve
-
-    let avatarURL
-    if (username === this.config.SERVER_NAME + ' - Server') { // use avatar for the server
-      avatarURL = this.config.SERVER_IMAGE || defaultHead
-    } else { // use avatar for player
-      const uuid = await this.getUUIDFromUsername(username)
-      avatarURL = !!uuid ? this.getHeadUrl(uuid) : defaultHead
-    }
-
-    return {
-      username,
-      content: message,
-      'avatar_url': avatarURL,
-    }
-  }
-
   private makeDiscordMessage(username: string, message: string) {
     return this.config.DISCORD_MESSAGE_TEMPLATE
       .replace('%username%', username)
@@ -289,14 +214,8 @@ class Discord {
     message = await this.replaceDiscordMentions(message)
 
     if (this.config.USE_WEBHOOKS) {
-      const webhook = await this.makeDiscordWebhook(username, message)
-      try {
-        await axios.post(this.config.WEBHOOK_URL, webhook, { headers: { 'Content-Type': 'application/json' } })
-        return
-      } catch (e) {
-        console.log('[ERROR] Could not send Discord message through WebHook! Falling back to sending through bot.')
-        if (this.config.DEBUG) console.log(e)
-      }
+      const sentMessage = await this.webhookClient!.sendMessage(username, message)
+      if (sentMessage) return
     }
 
     const messageContent = this.makeDiscordMessage(username, message)

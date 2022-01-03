@@ -7,7 +7,6 @@ export interface Config {
   IGNORE_WEBHOOKS: string
   DISCORD_TOKEN: string
   DISCORD_CHANNEL_ID: string
-  DISCORD_CHANNEL_NAME: string
   DISCORD_MESSAGE_TEMPLATE: string
 
   MINECRAFT_SERVER_RCON_IP: string
@@ -29,7 +28,7 @@ export interface Config {
   ALLOW_USER_MENTIONS: boolean
   ALLOW_HERE_EVERYONE_MENTIONS: boolean
   ALLOW_SLASH_COMMANDS: boolean
-  SLASH_COMMAND_ROLES: string[]
+  SLASH_COMMAND_ROLES_IDS: string[]
 
   WEBHOOK: string
   REGEX_SERVER_PREFIX: string
@@ -40,7 +39,9 @@ export interface Config {
   SERVER_NAME: string
   SERVER_IMAGE: string
   HEAD_IMAGE_URL: string
+  UUID_API_URL: string
   DEFAULT_PLAYER_HEAD: string
+
   SHOW_SERVER_STATUS: boolean
   SHOW_PLAYER_CONN_STAT: boolean
   SHOW_PLAYER_ADVANCEMENT: boolean

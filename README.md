@@ -6,12 +6,16 @@
 ![discord-mc](http://i.thedestruc7i0n.ca/I5anbg.gif)
 
 ## Features
-- Sends message to and from Vanilla Minecraft servers
-- Can send messages regarding advancements, when players join and leave, and player deaths
+- Sends message to and from Vanilla Minecraft servers with no plugins or mods
+- Can send messages regarding
+  - Advancements
+  - Players joining and leaving
+  - Player deaths
+- Webhooks for sending messages
+- Allows members with specific roles to send commands to Minecraft through Discord
 - Can be run on a remote machine or locally on the same machine (see `IS_LOCAL_FILE` in the options below)
-- Allows admins to send commands to Minecraft through Discord
  
-## Installation and usage
+## Installation
 
 Ensure you have Node v16.6+ installed. You can check the version you have installed with `node -v` in your terminal or command prompt.
 
@@ -29,27 +33,32 @@ rcon.password=<your password>
 rcon.port=<1-65535>
 ```
 
-Clone repository onto a server, copy ```config.example.json``` to ```config.json```, and edit it to enter your Discord bot details and to change any options (see below for details on the config file).
+Clone this repository onto a server, copy ```config.example.json``` to ```config.json```. And edit the following config fields:
 
-Then, in the repository folder:
+Set `DISCORD_TOKEN` to the Discord Bot token that you created.
+
+Set `MINECRAFT_SERVER_RCON_IP`, `MINECRAFT_SERVER_RCON_PORT`, and `MINECRAFT_SERVER_RCON_PASSWORD` to the ip, rcon port, and rcon password respectively for your server. (127.0.0.1 can be used if Shulker is running on the same server as your Minecraft server)
+
+If you are running Shulker on the same server as your Minecraft server, set `IS_LOCAL_FILE` to `true` and update `LOCAL_FILE_PATH` to the full path to your Minecraft server's latest log file. (ex: `minecraft_server/logs/latest.log`)
+
+If you want to have Shulker running on a remote server, see [Remote](#remote-setup) below.
+
+With developer mode (Settings > Appearance > Developer Mode) enabled, right click the channel you wish to have Shulker send messages to and click "Copy ID". Set `DISCORD_CHANNEL_ID` to this value.
+
+Create a webhook in the channel (Right click on channel > Edit Channel > Integrations > Create Webhook or New Webhook), copy it, and set `WEBHOOK_URL` to this value.
+
+Finally, start Shulker.
 ```sh
-yarn # or npm install
-yarn build # or npm run build
-yarn start # or npm run start
+npm install
+npm run build
+npm run start
 ```
-
-If you are running this on the same server as the MC server, enable the `IS_LOCAL_FILE` flag and update related options below.
-Otherwise, perform the following command on the server hosting (in a screen/tmux session or background process, make sure to replace your `YOUR_URL` with whatever URL you're using (`localhost:8000` if running on the same server and default config) and `PATH_TO_MINECRAFT_SERVER_INSTALL` with the path to the Minecraft server installation, such as `/usr/home/minecraft_server/`):
-
-``` sh
-tail -F /PATH_TO_MINECRAFT_SERVER_INSTALL/logs/latest.log | grep --line-buffered ": <" | while read x ; do echo -ne $x | curl -X POST -d @- http://YOUR_URL/minecraft/hook ; done
-```
-(The above command will also be given to you if you are not using a local file when you first start up Shulker)
 
 ### Configuration
+Details on the `config.json` file.
+
 ```js
 {
-    "PORT": 8000, /* Port you want to run the webserver for the hook on */
     "DEBUG": false, /* Dev debugging */
     
     "USE_WEBHOOKS": true, /* If you want to use webhooks rather than the Discord bot sending the messages (recommended) */
@@ -59,7 +68,6 @@ tail -F /PATH_TO_MINECRAFT_SERVER_INSTALL/logs/latest.log | grep --line-buffered
 
     "DISCORD_TOKEN": "<12345>", /* Discord bot token. [Click here](https://discordapp.com/developers/applications/me) to create you application and add a bot to it. */
     "DISCORD_CHANNEL_ID": "<channel>", /* Discord channel ID for for the discord bot. Enable developer mode in your Discord client, then right click channel and select "Copy ID". */
-    "DISCORD_CHANNEL_NAME": "#<channel name>" /* The Discord channel name. It is recommended to use the ID if the bot is in multiple servers. The ID will take precedence. */
     "DISCORD_MESSAGE_TEMPLATE": "`%username%`:%message%", /* Message template to display in Discord */
 
     "MINECRAFT_SERVER_RCON_IP": "127.0.0.1", /* Minecraft server IP (make sure you have enabled rcon) */
@@ -73,12 +81,13 @@ tail -F /PATH_TO_MINECRAFT_SERVER_INSTALL/logs/latest.log | grep --line-buffered
     "LOCAL_FILE_PATH": "/usr/home/minecraft_server/logs/latest.log", /* the path to the local file if `IS_LOCAL_FILE` is set */
     "FS_WATCH_FILE": false, /* use node's watchFile rather than watch. see FAQ for more details */
 
+    "PORT": 8000, /* Port you want to run the webserver for the hook on */
     "SHOW_INIT_MESSAGE": true, /* Sends the message on boot if not a local file of what command to run */ 
 
     "ALLOW_USER_MENTIONS": false, /* should replace @mentions with the mention in discord (format: @username#discriminator) */
     "ALLOW_HERE_EVERYONE_MENTIONS": false, /* replaces @everyone and @here with "@ everyone" and "@ here" respectively */
     "ALLOW_SLASH_COMMANDS": false, /* whether to allow users to run slash commands from discord */
-    "SLASH_COMMAND_ROLES": [], /* if the above is enabled, the names of the roles which can run slash commands */
+    "SLASH_COMMAND_ROLES_IDS": [], /* if the above is enabled, the IDs of the roles which can run slash commands. With developer mode enabled, right click each role and "Copy ID". */.
     
     "WEBHOOK": "/minecraft/hook", /* Web hook, where to send the log to */
     "REGEX_SERVER_PREFIX": "\\[Server thread/INFO\\]:", /* What the lines of the log should start with */
@@ -89,7 +98,9 @@ tail -F /PATH_TO_MINECRAFT_SERVER_INSTALL/logs/latest.log | grep --line-buffered
     "SERVER_NAME": "Shulker", /* The username used when displaying any server information in chat, e.g., Server - Shulker : Server message here*/
     "SERVER_IMAGE": "", /* Image for the server when sending such messages (if enabled below). Only for WebHooks. */
     "HEAD_IMAGE_URL": "https://mc-heads.net/avatar/%uuid%/256", /* Url to get the heads for the webhook, %uuid% is replaced with the uuid of the player */
+    "UUID_API_URL": "https://api.mojang.com/users/profiles/minecraft/%username%", /* Url to fetch the uuids from. %username% is replaced with the username of the player. expects uuid at top level key `id` (like the mojang api) */
     "DEFAULT_PLAYER_HEAD": "c06f89064c8a49119c29ea1dbd1aab82", /* UUID of player with the default head to use (currently is MHF_Steve) */
+
     "SHOW_SERVER_STATUS": false, /* Shows when the server turns on and off e.g., Server - Shulker : Server is online */
     "SHOW_PLAYER_CONN_STAT": false, /* Shows player connection status in chat, e.g., Server - Shulker : TheMachine joined the game */
     "SHOW_PLAYER_ADVANCEMENT": false, /* Shows when players earn advancements in chat, e.g., Server - Shulker : TheMachine has made the advacement [MEME - Machine] */
@@ -103,12 +114,21 @@ tail -F /PATH_TO_MINECRAFT_SERVER_INSTALL/logs/latest.log | grep --line-buffered
   - Try replacing `REGEX_SERVER_PREFIX` with `"\\[Server thread/INFO\\] \\[.*\\]:"`
   
 * Why can't I send commands even if I have the option enabled?
-  - Make sure that you have a role on the server which is put in the array `SLASH_COMMAND_ROLES` case-sensitive.
-    - e.g. `"SLASH_COMMAND_ROLES": ["Admin"]`
+  - Make sure that you have a role on the server which is put in the array `SLASH_COMMAND_ROLES_IDS`.
+    - e.g. `"SLASH_COMMAND_ROLES_IDS": ["<role id>"]`
 
 * I am using a local file and no messages are being sent!
   - Enable `DEBUG` in the config to check for any errors.
   - If you are on Windows, try enabling `FS_WATCH_FILE`.
+
+## Remote Setup
+
+Perform the following command on the server hosting the Minecraft server (in a screen/tmux session or background process, make sure to replace your `YOUR_URL` with whatever URL you're using (`localhost:8000` if running on the same server and default config) and `PATH_TO_MINECRAFT_SERVER_INSTALL` with the path to the Minecraft server installation, such as `/usr/home/minecraft_server/`):
+
+```sh
+tail -F /PATH_TO_MINECRAFT_SERVER_INSTALL/logs/latest.log | grep --line-buffered ": <" | while read x ; do echo -ne $x | curl -X POST -d @- http://YOUR_URL/minecraft/hook ; done
+```
+(The above command will also be given to you if you are not using a local file when you first start up Shulker)
 
 ## Upgrade Instructions
 From version 2 to version 3:
