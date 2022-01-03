@@ -33,19 +33,19 @@ rcon.password=<your password>
 rcon.port=<1-65535>
 ```
 
-Clone this repository onto a server, copy ```config.example.json``` to ```config.json```, and edit it. (See [Configuration](#configuration) below for full details on the config file).
+Clone this repository onto a server, copy ```config.example.json``` to ```config.json```. And edit the following config fields:
 
 Set `DISCORD_TOKEN` to the Discord Bot token that you created.
 
-Set `MINECRAFT_SERVER_RCON_IP`, `MINECRAFT_SERVER_RCON_PORT`, and `MINECRAFT_SERVER_RCON_PASSWORD` to the correct values for your server.
+Set `MINECRAFT_SERVER_RCON_IP`, `MINECRAFT_SERVER_RCON_PORT`, and `MINECRAFT_SERVER_RCON_PASSWORD` to the ip, rcon port, and rcon password respectively for your server. (127.0.0.1 can be used if Shulker is running on the same server as your Minecraft server)
 
-If you are running Shulker on the same server as the MC server, set `IS_LOCAL_FILE` to true and update `LOCAL_FILE_PATH` to the full path to your Minecraft server's latest log file. (ex: `minecraft_server/logs/latest.log`)
+If you are running Shulker on the same server as your Minecraft server, set `IS_LOCAL_FILE` to `true` and update `LOCAL_FILE_PATH` to the full path to your Minecraft server's latest log file. (ex: `minecraft_server/logs/latest.log`)
 
-If you want to have Shullker running on a remote server, please see [Remote](#remote-setup) below.
+If you want to have Shulker running on a remote server, see [Remote](#remote-setup) below.
 
 With developer mode (Settings > Appearance > Developer Mode) enabled, right click the channel you wish to have Shulker send messages to and click "Copy ID". Set `DISCORD_CHANNEL_ID` to this value.
 
-Create a webhook in the channel (Edit Channel > Integrations > Create Webhook or New Webhook), copy it and set it as `WEBHOOK_URL`.
+Create a webhook in the channel (Right click on channel > Edit Channel > Integrations > Create Webhook or New Webhook), copy it, and set `WEBHOOK_URL` to this value.
 
 Finally, start Shulker.
 ```sh
@@ -55,6 +55,8 @@ npm run start
 ```
 
 ### Configuration
+Details on the `config.json` file.
+
 ```js
 {
     "DEBUG": false, /* Dev debugging */
@@ -112,8 +114,8 @@ npm run start
   - Try replacing `REGEX_SERVER_PREFIX` with `"\\[Server thread/INFO\\] \\[.*\\]:"`
   
 * Why can't I send commands even if I have the option enabled?
-  - Make sure that you have a role on the server which is put in the array `SLASH_COMMAND_ROLES` case-sensitive.
-    - e.g. `"SLASH_COMMAND_ROLES": ["Admin"]`
+  - Make sure that you have a role on the server which is put in the array `SLASH_COMMAND_ROLES_IDS`.
+    - e.g. `"SLASH_COMMAND_ROLES_IDS": ["<role id>"]`
 
 * I am using a local file and no messages are being sent!
   - Enable `DEBUG` in the config to check for any errors.
