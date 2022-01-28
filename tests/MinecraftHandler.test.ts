@@ -3,7 +3,7 @@ import MinecraftHandler from '../src/MinecraftHandler'
 import { defaultConfig } from './constants'
 
 describe('MinecraftHandler', () => {
-  test('parses player join connection stat', () => {
+  it('parses player join connection stat', () => {
     const handler = new MinecraftHandler(defaultConfig)
 
     const { message } = handler['parseLogLine']('[Server thread/INFO]: destruc7i0n joined the game')!
@@ -11,7 +11,7 @@ describe('MinecraftHandler', () => {
     expect(message).toBe('destruc7i0n joined the game')
   })
 
-  test('parses player leave connection stat', () => {
+  it('parses player leave connection stat', () => {
     const handler = new MinecraftHandler(defaultConfig)
 
     const { message } = handler['parseLogLine']('[Server thread/INFO]: destruc7i0n left the game')!
@@ -19,7 +19,7 @@ describe('MinecraftHandler', () => {
     expect(message).toBe('destruc7i0n left the game')
   })
 
-  test('parses death messages', () => {
+  it('parses death messages', () => {
     const handler = new MinecraftHandler(defaultConfig)
 
     const tests = [

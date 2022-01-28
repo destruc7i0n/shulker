@@ -145,11 +145,6 @@ class Discord {
       text: emojiStrip(message.cleanContent),
     }
 
-    // use JSON to encode the strings for tellraw
-    for (const [k, v] of Object.entries(variables)) {
-      variables[k] = JSON.stringify(v).slice(1,-1)
-    }
-    
     if (this.config.MINECRAFT_TELLRAW_DOESNT_EXIST) {
       return this.config.MINECRAFT_TELLRAW_DOESNT_EXIST_SAY_TEMPLATE
         .replace(/%username%/g, variables.username)
@@ -158,7 +153,12 @@ class Discord {
         .replace(/%message%/g, variables.text)
     }
 
-    variables.text = escapeUnicode(variables.text)
+    for (const [k, v] of Object.entries(variables)) {
+      // use JSON to encode the strings for tellraw
+      const stringified = JSON.stringify(v).slice(1, -1)
+      // encode unicode characters for all fields
+      variables[k] = escapeUnicode(stringified)
+    }
 
     return this.config.MINECRAFT_TELLRAW_TEMPLATE
       .replace(/%username%/g, variables.username)

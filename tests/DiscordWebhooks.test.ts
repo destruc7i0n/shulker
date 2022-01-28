@@ -3,7 +3,7 @@ import DiscordWebhooks from '../src/DiscordWebhooks'
 import { defaultConfig } from './constants'
 
 describe('DiscordWebhooks', () => {
-  test('parses discord webhooks', () => {
+  it('parses discord webhooks', () => {
     const dw = new DiscordWebhooks(defaultConfig)
 
     expect(dw['parseDiscordWebhook']('https://discordapp.com/api/webhooks/id/token')).toStrictEqual({ id: 'id', token: 'token' })
@@ -14,7 +14,7 @@ describe('DiscordWebhooks', () => {
     expect(dw['parseDiscordWebhook']('https://diskrod.com/api/webhooks/id/token')).toStrictEqual({ id: null, token: null })
   })
   
-  test('gets uuid from username and caches', async () => {
+  it('gets uuid from username and caches', async () => {
     const dw = new DiscordWebhooks(defaultConfig)
 
     expect(await dw['getUUIDFromUsername']('destruc7i0n')).toBe('2d8cf844fa3441c38d4e597b32697909')
@@ -26,7 +26,7 @@ describe('DiscordWebhooks', () => {
   })
 
   describe('webhook generation', () => {
-    test('creates for valid players', async () => {
+    it('creates for valid players', async () => {
       const dw = new DiscordWebhooks(defaultConfig)
 
       expect(await dw['makeDiscordWebhook']('destruc7i0n', 'hey')).toStrictEqual(
@@ -46,7 +46,7 @@ describe('DiscordWebhooks', () => {
       )
     })
 
-    test('creates with default player head for invalid players', async () => {
+    it('creates with default player head for invalid players', async () => {
       const dw = new DiscordWebhooks(defaultConfig)
 
       // inb4 someone makes `fakedestruc7i0n`
@@ -71,7 +71,7 @@ describe('DiscordWebhooks', () => {
       )
     })
 
-    test('creates for server message', async () => {
+    it('creates for server message', async () => {
       const dw = new DiscordWebhooks(defaultConfig)
 
       expect(await dw['makeDiscordWebhook']('Shulker - Server', 'hey')).toStrictEqual(
