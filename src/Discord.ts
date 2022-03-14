@@ -88,35 +88,20 @@ class Discord {
     if (message.author.id === this.client.user?.id) return
     // ignore any attachments
     if (message.attachments.size) return
-
-    const rcon = new Rcon(this.config.MINECRAFT_SERVER_RCON_IP, this.config.MINECRAFT_SERVER_RCON_PORT, this.config.DEBUG)
-    try {
-      await rcon.auth(this.config.MINECRAFT_SERVER_RCON_PASSWORD)
-    } catch (e) {
-      console.log('[ERROR] Could not auth with the server!')
-      if (this.config.DEBUG) console.error(e)
-    }
-
-    let command: string | undefined;
-    if (this.config.ALLOW_SLASH_COMMANDS && this.config.SLASH_COMMAND_ROLES_IDS && message.cleanContent.startsWith('/') && message.member) {
-      const hasSlashCommandRole = this.config.SLASH_COMMAND_ROLES_IDS.some(id => message.member?.roles.cache.get(id))
-      if (hasSlashCommandRole) {
-        // send the raw command, can be dangerous...
-        command = message.cleanContent
-      } else {
-        console.log('[INFO] User attempted a slash command without a role')
-      }
-    } else {
-      if (this.config.MINECRAFT_TELLRAW_DOESNT_EXIST) {
-        command = `/say ${this.makeMinecraftMessage(message)}`
-      } else {
-        command = `/tellraw @a ${this.makeMinecraftMessage(message)}`
-      }
-    }
-
-    if (this.config.DEBUG) console.log(`[DEBUG] Sending command "${command}" to the server`)
-
+    
+    const command = this.buildMinecraftCommand(message)
+    
     if (command) {
+      if (this.config.DEBUG) console.log(`[DEBUG] Sending command "${command}" to the server`)
+
+      const rcon = new Rcon(this.config.MINECRAFT_SERVER_RCON_IP, this.config.MINECRAFT_SERVER_RCON_PORT, this.config.DEBUG)
+      try {
+        await rcon.auth(this.config.MINECRAFT_SERVER_RCON_PASSWORD)
+      } catch (e) {
+        console.log('[ERROR] Could not auth with the server!')
+        if (this.config.DEBUG) console.error(e)
+      }
+
       let response: string | undefined;
       try {
         response = await rcon.command(command)
@@ -127,30 +112,48 @@ class Discord {
 
       if (response?.startsWith('Unknown command') || response?.startsWith('Unknown or incomplete command')) {
         console.log('[ERROR] Could not send command! (Unknown command)')
-        if (command.startsWith('/tellraw')) {
+        if (command.startsWith('tellraw')) {
           console.log('[INFO] Your Minecraft version may not support tellraw, please check MINECRAFT_TELLRAW_DOESNT_EXIST in the README')
         }
       }
+
+      rcon.close()
     }
-    rcon.close()
   }
 
-  private makeMinecraftMessage(message: Message): string {
+  private buildMinecraftCommand (message: Message) {
+    if (this.config.ALLOW_SLASH_COMMANDS && this.config.SLASH_COMMAND_ROLES_IDS && message.cleanContent.startsWith('/') && message.member) {
+      const hasSlashCommandRole = this.config.SLASH_COMMAND_ROLES_IDS.some(id => message.member?.roles.cache.get(id))
+      if (hasSlashCommandRole) {
+        // send the raw command, can be dangerous...
+        return message.cleanContent
+      } else {
+        const { username, discriminator } = message.author
+        console.log(`[INFO] User ${username}#${discriminator} attempted to send a slash command without a role`)
+        return
+      }
+    }
+
     const username = emojiStrip(message.author.username)
+
+    let messageContent = message.cleanContent
+    messageContent = messageContent.replace('@\u200b', '@')
+    messageContent = emojiStrip(messageContent)
 
     const variables: {[index: string]: string} = {
       username,
       nickname: !!message.member?.nickname ? emojiStrip(message.member.nickname) : username,
       discriminator: message.author.discriminator,
-      text: emojiStrip(message.cleanContent),
+      text: messageContent,
     }
 
     if (this.config.MINECRAFT_TELLRAW_DOESNT_EXIST) {
-      return this.config.MINECRAFT_TELLRAW_DOESNT_EXIST_SAY_TEMPLATE
+      const sayMessage = this.config.MINECRAFT_TELLRAW_DOESNT_EXIST_SAY_TEMPLATE
         .replace(/%username%/g, variables.username)
         .replace(/%nickname%/g, variables.nickname)
         .replace(/%discriminator%/g, variables.discriminator)
         .replace(/%message%/g, variables.text)
+      return `say ${sayMessage}`
     }
 
     for (const [k, v] of Object.entries(variables)) {
@@ -160,11 +163,12 @@ class Discord {
       variables[k] = escapeUnicode(stringified)
     }
 
-    return this.config.MINECRAFT_TELLRAW_TEMPLATE
+    const tellrawComponent = this.config.MINECRAFT_TELLRAW_TEMPLATE
       .replace(/%username%/g, variables.username)
       .replace(/%nickname%/g, variables.nickname)
       .replace(/%discriminator%/g, variables.discriminator)
       .replace(/%message%/g, variables.text)
+    return `tellraw @a ${tellrawComponent}`
   }
 
   private async replaceDiscordMentions(message: string): Promise<string> {
