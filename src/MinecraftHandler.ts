@@ -1,5 +1,7 @@
 import fs from 'fs'
 import path from 'path'
+import type { Server } from 'http'
+
 import { Tail } from 'tail'
 import express from 'express'
 
@@ -18,6 +20,7 @@ class MinecraftHandler {
   config: Config
 
   app: express.Application
+  server?: Server
   tail: Tail
 
   constructor(config: Config) {
@@ -152,7 +155,7 @@ class MinecraftHandler {
 
     const port: number = Number(process.env.PORT) || this.config.PORT
 
-    this.app.listen(port, () => {
+    this.server = this.app.listen(port, () => {
       console.log('[INFO] Bot listening on *:' + port)
 
       if (!this.config.IS_LOCAL_FILE && this.config.SHOW_INIT_MESSAGE) {
@@ -201,6 +204,11 @@ class MinecraftHandler {
     this.tail.on('error', (error: any) => {
       console.log('[ERROR] Error tailing log file: ' + error)
     })
+  }
+
+  public _teardown() {
+    if (this.config.IS_LOCAL_FILE) this.tail.unwatch()
+    else if (this.server) this.server.close()
   }
 
   public init (callback: Callback) {
