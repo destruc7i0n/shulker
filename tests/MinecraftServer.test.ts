@@ -32,7 +32,7 @@ const serverProperties = {
 }
 
 describe(`MinecraftServer v${MC_VERSION}`, () => {
-  jest.setTimeout(1000 * 60 * 5) // 5 minutes
+  jest.setTimeout(1000 * 60) // 1 minutes
   const serverLog = jest.fn((_line: string) => undefined)
   // const logSpy = jest.spyOn(console, 'log')
 
@@ -85,12 +85,13 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
     // (handler as any) since private
     const parseLogLineSpy = jest.spyOn(handler as any, 'parseLogLine')
 
-    handler.init(async (data: LogLine) => {
+    handler.init((data: LogLine) => {
+      console.log(`[${MC_VERSION} SHULKER]:`, data)
+
       // both the server and the handler should have received the line
+      expect(data).toBeNull()
       expect(parseLogLineSpy).toHaveBeenCalledWith(expect.stringContaining('[Server] hello world!'))
       expect(serverLog).toHaveBeenCalledWith(expect.stringContaining('[Server] hello world!'))
-
-      console.log(`[${MC_VERSION} SHULKER]: ${data}`)
 
       handler._teardown()
       done()
