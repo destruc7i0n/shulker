@@ -44,6 +44,8 @@ jobs:
         distribution: 'temurin'
         java-version: ${{ matrix.javaVersion }}
         java-package: jre
+    - name: Install packages
+      run: yarn install
     - name: Test
       run: yarn test -t 'MinecraftServer'
       env:
