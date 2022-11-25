@@ -21,6 +21,8 @@ Ensure you have Node v16.6+ installed. You can check the version you have instal
 
 Create a Discord bot here: https://discordapp.com/developers/applications/me
 
+* Important: Ensure that the Bot has the **Server Members Intent** and the **Message Content Intent** (available on the "Bot" tab in your Application settings)
+
 Then, add the bot to your Discord server using the following link, replace the Client ID with that of your bot.
 ```
 https://discordapp.com/oauth2/authorize?client_id=<CLIENT ID>&scope=bot
