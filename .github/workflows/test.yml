@@ -1,0 +1,53 @@
+name: Test
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '16.x'
+    - name: Install packages
+      run: yarn install
+    - name: Type check
+      run: yarn type-check
+    - name: Test
+      run: yarn test --testPathIgnorePatterns 'MinecraftServer'
+    - name: Build
+      run: yarn build
+
+  server:
+    runs-on: ubuntu-latest
+    needs: test
+    timeout-minutes: 5
+    strategy:
+      matrix:
+        include:
+        # - javaVersion: 17
+        #   mcVersion: '1.18.2'
+        - javaVersion: 17
+          mcVersion: '1.19'
+        - javaVersion: 17
+          mcVersion: '1.19.2'
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '16.x'
+    - name: Setup Java JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: ${{ matrix.javaVersion }}
+        java-package: jre
+    - name: Install packages
+      run: yarn install
+    - name: Test
+      run: yarn test -t 'MinecraftServer'
+      env:
+        MC_VERSION: ${{ matrix.mcVersion }}
