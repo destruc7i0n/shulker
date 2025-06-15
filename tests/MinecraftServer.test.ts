@@ -35,6 +35,7 @@ const serverProperties = {
 describe(`MinecraftServer v${MC_VERSION}`, () => {
   jest.setTimeout(1000 * 60) // 1 minutes
   const serverLog = jest.fn((_line: string) => undefined)
+  let rcon: Rcon
   // const logSpy = jest.spyOn(console, 'log')
 
   beforeAll((done) => {
@@ -67,7 +68,12 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
         done(err)
         return
       }
-      done()
+
+      rcon = new Rcon(configWithServer.MINECRAFT_SERVER_RCON_IP, configWithServer.MINECRAFT_SERVER_RCON_PORT, configWithServer.DEBUG)
+      rcon.auth(configWithServer.MINECRAFT_SERVER_RCON_PASSWORD).then(() => {
+        console.log(`[${MC_VERSION} RCON] Connected and authenticated`)
+        done()
+      })
     })
   })
 
@@ -116,9 +122,6 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
   })
 
   it('connects to Minecraft server via rcon', async () => {
-    const rcon = new Rcon(configWithServer.MINECRAFT_SERVER_RCON_IP, configWithServer.MINECRAFT_SERVER_RCON_PORT, configWithServer.DEBUG)
-    await rcon.auth(configWithServer.MINECRAFT_SERVER_RCON_PASSWORD)
-
     await rcon.command('say hello world from rcon!')
 
     await new Promise(resolve => setTimeout(resolve, 1000 * 2))
@@ -165,6 +168,59 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
 
       bot.chat('Hello from mineflayer!')
       setTimeout(() => bot.quit(), 1000)
+    })
+
+    it('handles bot join/leave connection status', (done) => {
+      const handler = new MinecraftHandler(configWithServer)
+      let joinMessageReceived = false
+      let leaveMessageReceived = false
+
+      handler.init((data: LogLine) => {
+        console.log(`[${MC_VERSION} SHULKER] Connection status test log:`, data)
+
+        if (data && data.username.includes('Server') && data.message.includes('TestBot joined the game')) {
+          joinMessageReceived = true
+          expect(data.message).toContain('TestBot joined the game')
+        }
+
+        if (data && data.username.includes('Server') && data.message.includes('TestBot left the game')) {
+          leaveMessageReceived = true
+          expect(data.message).toContain('TestBot left the game')
+          
+          // Both messages received, test complete
+          if (joinMessageReceived && leaveMessageReceived) {
+            handler._teardown()
+            done()
+          }
+        }
+      })
+
+      // Bot should automatically generate join message when it connects
+      // Then we'll make it quit to generate leave message
+      setTimeout(() => {
+        bot.quit()
+      }, 2000)
+    })
+
+    it('handles /me command messages', (done) => {
+      const handler = new MinecraftHandler(configWithServer)
+
+      handler.init((data: LogLine) => {
+        console.log(`[${MC_VERSION} SHULKER] /me command test log:`, data)
+
+        if (data && data.username.includes('Server') && data.message.includes('**TestBot**')) {
+          expect(data.message).toContain('**TestBot** is testing /me command')
+          
+          handler._teardown()
+          bot.quit()
+          done()
+        }
+      })
+
+      setTimeout(() => {
+        // Send /me command
+        bot.chat('/me is testing /me command')
+      }, 1000)
     })
   })
 })
