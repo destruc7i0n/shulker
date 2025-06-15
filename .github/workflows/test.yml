@@ -59,7 +59,7 @@ jobs:
           })
         
         matrix = {'include': matrix_items}
-        print(f'matrix={json.dumps(matrix, separators=(\",\", \":\")))') 
+        print('matrix=' + json.dumps(matrix, separators=(',', ':'))) 
         " >> $GITHUB_OUTPUT
 
   server:
