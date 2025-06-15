@@ -96,8 +96,6 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
     handler.init((data: LogLine) => {
       console.log(`[${MC_VERSION} SHULKER]:`, data)
 
-      wrap.writeServer('say hello world!\n')
-
       // both the server and the handler should have received the line
       expect(data).toBeNull()
       expect(parseLogLineSpy).toHaveBeenCalledWith(expect.stringContaining('[Server] hello world!'))
@@ -106,6 +104,10 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
       handler._teardown()
       done()
     })
+
+    setTimeout(() => {
+      wrap.writeServer('say hello world!\n')
+    }, 1000 * 5)
   })
 
   it('connects to Minecraft server via rcon', async () => {
@@ -114,8 +116,7 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
 
     await rcon.command('say hello world from rcon!')
 
-    // Give a brief moment for the message to propagate to logs
-    await new Promise(resolve => setTimeout(resolve, 100))
+    await new Promise(resolve => setTimeout(resolve, 1000 * 2))
 
     expect(serverLog).toHaveBeenCalledWith(expect.stringContaining('[Rcon] hello world from rcon!'))
 
