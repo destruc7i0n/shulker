@@ -31,11 +31,11 @@ const serverProperties = {
 }
 
 describe(`MinecraftServer v${MC_VERSION}`, () => {
-  let wrap: typeof Wrap
-  jest.setTimeout(1000 * 60) // 1 minutes
+  jest.setTimeout(1000 * 60) // 1 minute
+  
   const serverLog = jest.fn((_line: string) => undefined)
+  let wrap: typeof Wrap
   let rcon: Rcon
-  // const logSpy = jest.spyOn(console, 'log')
 
   beforeAll((done) => {
     console.log(`Downloading Minecraft ${MC_VERSION} server...`)
@@ -162,7 +162,7 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
       const handler = new MinecraftHandler(configWithServer)
 
       handler.init((data: LogLine) => {
-        console.log(`[${MC_VERSION} SHULKER] Got message:`, data)
+        console.log(`[${MC_VERSION} SHULKER] Bot chat message test log:`, data)
 
         if (data && data.username === 'TestBot' && data.message === 'Hello from mineflayer!' && data.type === 'chat') {        
           expect(data.username).toBe('TestBot')
