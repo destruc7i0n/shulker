@@ -236,5 +236,55 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
         }, 1000)
       })
     })
+
+    it('handles player death messages', (done) => {
+      const handler = new MinecraftHandler({
+        ...configWithServer,
+        SHOW_PLAYER_DEATH: true
+      })
+
+      handler.init((data: LogLine) => {
+        console.log(`[${MC_VERSION} SHULKER] Death message test log:`, data)
+
+        if (data && data.username.includes('Server') && data.message.includes('TestBot')) {
+          expect(data.message).toMatch(/TestBot (died|was killed|fell|burned|drowned|blew up|suffocated|starved|withered|walked into a cactus|experienced kinetic energy|discovered (the )?floor was lava|tried to swim in lava|hit the ground|didn't want to live|went (up in flames|off with a bang)|walked into (fire|danger)|was (killed|shot|slain|pummeled|pricked|blown up|impaled|squashed|squished|skewered|poked|roasted|burnt|frozen|struck by lightning|fireballed|stung|doomed))/)
+          
+          handler._teardown()
+          done()
+        }
+      })
+
+      initBot().then((bot) => {
+        setTimeout(() => {
+          // Kill the bot using RCON to simulate a death
+          rcon.command('kill TestBot')
+        }, 1000)
+      })
+    })
+
+    it('handles player advancement messages', (done) => {
+      const handler = new MinecraftHandler({
+        ...configWithServer,
+        SHOW_PLAYER_ADVANCEMENT: true
+      })
+
+      handler.init((data: LogLine) => {
+        console.log(`[${MC_VERSION} SHULKER] Advancement test log:`, data)
+
+        if (data && data.username.includes('Server') && data.message.includes('TestBot') && data.message.includes('made the advancement')) {
+          expect(data.message).toContain('TestBot made the advancement')
+          
+          handler._teardown()
+          done()
+        }
+      })
+
+      initBot().then((bot) => {
+        setTimeout(() => {
+          // Give the bot an advancement using RCON
+          rcon.command('advancement grant TestBot only minecraft:story/mine_stone')
+        }, 1000)
+      })
+    })
   })
 })
