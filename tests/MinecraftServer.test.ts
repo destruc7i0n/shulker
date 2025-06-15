@@ -1,10 +1,11 @@
-import { Wrap, download } from 'minecraft-wrap'
 import path from 'path'
 import mineflayer from 'mineflayer'
 
 import Rcon from '../src/Rcon'
 import MinecraftHandler, { LogLine } from '../src/MinecraftHandler'
 import { defaultConfig } from './constants'
+
+const { Wrap, download } = require('minecraft-wrap')
 
 const MC_VERSION = process.env['MC_VERSION']
 const MC_SERVER_PATH = path.resolve(`./tests/server/server-${MC_VERSION}`)
