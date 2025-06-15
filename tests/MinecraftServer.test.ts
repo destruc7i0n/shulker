@@ -42,7 +42,10 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
     download(MC_VERSION, MC_SERVER_JAR, (err: any) => {
       if (err) {
         console.error(err)
+        done(err)
+        return
       }
+
       console.log(`Minecraft ${MC_VERSION} server JAR downloaded`)
       done()
     })
@@ -67,19 +70,22 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
         return
       }
 
-      rcon = new Rcon(configWithServer.MINECRAFT_SERVER_RCON_IP, configWithServer.MINECRAFT_SERVER_RCON_PORT, configWithServer.DEBUG)
-      rcon.auth(configWithServer.MINECRAFT_SERVER_RCON_PASSWORD).then(() => {
-        console.log(`[${MC_VERSION} RCON] Connected and authenticated`)
-        done()
-      }).catch((err: any) => {
-        console.error('Failed to authenticate with RCON')
-        throw err
-      })
+      setTimeout(() => {
+        rcon = new Rcon(configWithServer.MINECRAFT_SERVER_RCON_IP, configWithServer.MINECRAFT_SERVER_RCON_PORT, configWithServer.DEBUG)
+        rcon.auth(configWithServer.MINECRAFT_SERVER_RCON_PASSWORD).then(() => {
+          console.log(`[${MC_VERSION} RCON] Connected and authenticated`)
+          done()
+        }).catch((err: any) => {
+          console.error('Failed to authenticate with RCON')
+          throw err
+        })
+      }, 1000 * 2)
     })
   })
 
   afterEach((done) => {
     console.log(`Stopping Minecraft ${MC_VERSION} server...`)
+    rcon?.close()
     wrap.stopServer((err: any) => {
       if (err) {
         console.error(err)
