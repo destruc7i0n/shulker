@@ -27,7 +27,7 @@ jobs:
     - uses: oven-sh/setup-bun@v2
     - name: Install mineflayer
       run: bun add mineflayer@latest
-        - name: Generate version matrix
+    - name: Generate version matrix
       id: generate
       run: |
         bun -e "
