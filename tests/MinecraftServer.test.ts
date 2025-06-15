@@ -132,6 +132,8 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
     const handler = new MinecraftHandler(configWithServer)
 
     handler.init((data: LogLine) => {
+      console.log(`[${MC_VERSION} SHULKER] Got message:`, data)
+
       if (data && data.username === 'TestBot' && data.message === 'Hello from mineflayer!') {        
         expect(data.username).toBe('TestBot')
         expect(data.message).toBe('Hello from mineflayer!')
