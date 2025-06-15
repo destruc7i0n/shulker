@@ -275,11 +275,6 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
       })
 
       const bot = await initBot()
-
-      wrap.writeServer('op TestBot\n')
-      // wait for the op to take effect
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
       const deathPromise = new Promise<void>(resolve => {
         handler.init((data: LogLine) => {
           console.log(`[${MC_VERSION} SHULKER] Death message test log:`, data)
@@ -294,7 +289,7 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
 
       // Give the bot a moment to spawn before killing it.
       setTimeout(() => {
-        bot.chat('kill @s')
+        wrap.writeServer('kill TestBot\n')
       }, 2000)
 
       await deathPromise
