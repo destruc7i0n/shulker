@@ -1,5 +1,6 @@
 import { Wrap, download } from 'minecraft-wrap'
 import path from 'path'
+import mineflayer from 'mineflayer'
 
 import Rcon from '../src/Rcon'
 import MinecraftHandler, { LogLine } from '../src/MinecraftHandler'
@@ -125,5 +126,40 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
     expect(serverLog).toHaveBeenCalledWith(expect.stringContaining('[Rcon] hello world from rcon!'))
 
     rcon.close()
+  })
+
+  it('handles mineflayer bot chat message', (done) => {
+    const handler = new MinecraftHandler(configWithServer)
+
+    handler.init((data: LogLine) => {
+      if (data && data.username === 'TestBot' && data.message === 'Hello from mineflayer!') {        
+        expect(data.username).toBe('TestBot')
+        expect(data.message).toBe('Hello from mineflayer!')
+        
+        handler._teardown()
+        done()
+      }
+    })
+
+    setTimeout(() => {
+      const bot = mineflayer.createBot({
+        host: 'localhost',
+        port: 25565,
+        username: 'TestBot',
+        version: MC_VERSION,
+        skipValidation: true
+      })
+
+      bot.once('spawn', () => {
+        bot.chat('Hello from mineflayer!')
+        setTimeout(() => bot.quit(), 1000)
+      })
+
+      bot.on('error', (err) => {
+        console.error(`Bot error:`, err)
+        handler._teardown()
+        done(err)
+      })
+    }, 5000)
   })
 })
