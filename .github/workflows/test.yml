@@ -32,6 +32,8 @@ jobs:
       run: |
         bun -e "
         const { testedVersions } = require('mineflayer/lib/version');
+
+        const FALLBACK_JAVA_VERSION = 21;
         
         const compareVersions = (a, b) => {
           const aTuple = a.split('.').map(Number);
@@ -47,24 +49,24 @@ jobs:
         
         const versionsToTest = testedVersions.slice(-10);
         
-        const manifest = await fetch('https://launchermeta.mojang.com/mc/game/version_manifest.json').then(r => r.json());
+        const manifest = await (await fetch('https://launchermeta.mojang.com/mc/game/version_manifest.json')).json();
         const versionMap = Object.fromEntries(manifest.versions.map(v => [v.id, v]));
         
-        const matrixItems = await Promise.all(versionsToTest.map(async mcVersion => {
+        const matrixItems = await Promise.all(versionsToTest.map(async (mcVersion) => {
           const versionInfo = versionMap[mcVersion];
           if (!versionInfo) {
             console.error('Version not found in manifest:', mcVersion);
-            return { javaVersion: 21, mcVersion };
+            return { javaVersion: FALLBACK_JAVA_VERSION, mcVersion };
           }
           
           try {
-            const versionDetails = await fetch(versionInfo.url).then(r => r.json());
-            const javaVersion = versionDetails.javaVersion?.majorVersion || 21;
+            const versionDetails = await (await fetch(versionInfo.url)).json();
+            const javaVersion = versionDetails.javaVersion?.majorVersion ?? FALLBACK_JAVA_VERSION;
             return { javaVersion, mcVersion };
           } catch (err) {
             console.error('Error fetching version data for', mcVersion, ':', err);
             return {
-              javaVersion: 21, // assume java 21 is supported
+              javaVersion: FALLBACK_JAVA_VERSION,
               mcVersion
             };
           }
