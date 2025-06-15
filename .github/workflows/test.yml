@@ -7,20 +7,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - uses: pnpm/action-setup@v4
-      with:
-        version: 10
     - uses: actions/setup-node@v4
       with:
         node-version: '20.x'
     - name: Install packages
-      run: pnpm install --frozen-lockfile
+      run: yarn install
     - name: Type check
-      run: pnpm run type-check
+      run: yarn type-check
     - name: Test
-      run: pnpm run test --testPathIgnorePatterns 'MinecraftServer'
+      run: yarn test --testPathIgnorePatterns 'MinecraftServer'
     - name: Build
-      run: pnpm run build
+      run: yarn build
 
   generate-version-matrix:
     runs-on: ubuntu-latest
@@ -93,9 +90,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - uses: pnpm/action-setup@v4
-      with:
-        version: 10
     - uses: actions/setup-node@v4
       with:
         node-version: '20.x'
@@ -106,8 +100,8 @@ jobs:
         java-version: ${{ matrix.javaVersion }}
         java-package: jdk
     - name: Install packages
-      run: pnpm install --frozen-lockfile
+      run: yarn install
     - name: Test
-      run: pnpm run test -t 'MinecraftServer'
+      run: yarn test -t 'MinecraftServer'
       env:
         MC_VERSION: ${{ matrix.mcVersion }}
