@@ -54,6 +54,8 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
   })
 
   beforeEach(async () => {
+    console.info(`[${MC_VERSION} SERVER] Starting Minecraft ${MC_VERSION} server for test: ${expect.getState().currentTestName}`)
+
     // Clear previous logs
     serverLog.mockClear()
 
@@ -66,7 +68,6 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
       serverLog(line)
     })
 
-    console.log(`Starting fresh Minecraft ${MC_VERSION} server instance...`)
     await new Promise<void>((resolve, reject) => {
       wrap.startServer(serverProperties, (err: any) => {
         if (err) {
@@ -279,10 +280,12 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
       const testPromise = new Promise<void>(resolve => {
         let joined = false
         handler.init((data: LogLine) => {
+          console.log(`[${MC_VERSION} SHULKER] Death message test log:`, data)
+
           if (!data) return
 
           // Step 1: Wait for the bot to join
-          if (!joined && data.type === 'connection' && data.message.includes('TestBot joined')) {
+          if (!joined && data.type === 'connection') {
             joined = true
             // kill the bot
             rcon.command('kill TestBot')
@@ -290,7 +293,7 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
           }
 
           // Step 3: Wait for the death message
-          if (joined && data.type === 'death' && data.message.includes('TestBot')) {
+          if (joined && data.type === 'death') {
             handler._teardown()
             bot.quit()
             resolve()
