@@ -128,23 +128,10 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
     rcon.close()
   })
 
-  it('handles mineflayer bot chat message', (done) => {
-    const handler = new MinecraftHandler(configWithServer)
-
-    handler.init((data: LogLine) => {
-      console.log(`[${MC_VERSION} SHULKER] Got message:`, data)
-
-      if (data && data.username === 'TestBot' && data.message === 'Hello from mineflayer!') {        
-        expect(data.username).toBe('TestBot')
-        expect(data.message).toBe('Hello from mineflayer!')
-        
-        handler._teardown()
-        done()
-      }
-    })
-
-    setTimeout(() => {
-      const bot = mineflayer.createBot({
+  describe('mineflayer', () => {
+    let bot: mineflayer.Bot
+    beforeEach((done) => {
+      bot = mineflayer.createBot({
         host: 'localhost',
         port: 25565,
         username: 'TestBot',
@@ -153,15 +140,31 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
       })
 
       bot.once('spawn', () => {
-        bot.chat('Hello from mineflayer!')
-        setTimeout(() => bot.quit(), 1000)
+        done()
       })
 
-      bot.on('error', (err) => {
-        console.error(`Bot error:`, err)
-        handler._teardown()
-        done(err)
+      bot.on('end', () => {
+        console.log(`[${MC_VERSION} SHULKER] Bot disconnected`)
       })
-    }, 5000)
+    })
+
+    it('handles bot chat message', (done) => {
+      const handler = new MinecraftHandler(configWithServer)
+
+      handler.init((data: LogLine) => {
+        console.log(`[${MC_VERSION} SHULKER] Got message:`, data)
+
+        if (data && data.username === 'TestBot' && data.message === 'Hello from mineflayer!') {        
+          expect(data.username).toBe('TestBot')
+          expect(data.message).toBe('Hello from mineflayer!')
+          
+          handler._teardown()
+          done()
+        }
+      })
+
+      bot.chat('Hello from mineflayer!')
+      setTimeout(() => bot.quit(), 1000)
+    })
   })
 })
