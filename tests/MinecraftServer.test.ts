@@ -30,17 +30,6 @@ const serverProperties = {
   'rcon.port': RCON_PORT.toString(),
 }
 
-const downloadServer = () => {
-  return new Promise((resolve, reject) => {
-    download(MC_VERSION, MC_SERVER_JAR, (err: any) => {
-      if (err) {
-        reject(err)
-      }
-      resolve(void 0)
-    })
-  })
-}
-
 describe(`MinecraftServer v${MC_VERSION}`, () => {
   jest.setTimeout(1000 * 60) // 1 minute
   
@@ -48,34 +37,43 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
   let wrap: typeof Wrap
   let rcon: Rcon
 
+  beforeAll((done) => {
+    console.log(`Downloading Minecraft ${MC_VERSION} server...`)
+    download(MC_VERSION, MC_SERVER_JAR, (err: any) => {
+      if (err) {
+        console.error(err)
+      }
+      console.log(`Minecraft ${MC_VERSION} server JAR downloaded`)
+      done()
+    })
+  })
+
   beforeEach((done) => {
     // Clear previous logs
     serverLog.mockClear()
 
-    downloadServer().then(() => {
-      wrap = new Wrap(MC_SERVER_JAR, MC_SERVER_PATH)
-      
-      wrap.on('line', (line: string) => {
-        console.log(`[${MC_VERSION} SERVER] ${line}`)
-        serverLog(line)
-      })
+    wrap = new Wrap(MC_SERVER_JAR, MC_SERVER_PATH)
+    
+    wrap.on('line', (line: string) => {
+      console.log(`[${MC_VERSION} SERVER] ${line}`)
+      serverLog(line)
+    })
 
-      console.log(`Starting fresh Minecraft ${MC_VERSION} server instance...`)
-      wrap.startServer(serverProperties, (err: any) => {
-        if (err) {
-          console.error(err)
-          done(err)
-          return
-        }
+    console.log(`Starting fresh Minecraft ${MC_VERSION} server instance...`)
+    wrap.startServer(serverProperties, (err: any) => {
+      if (err) {
+        console.error(err)
+        done(err)
+        return
+      }
 
-        rcon = new Rcon(configWithServer.MINECRAFT_SERVER_RCON_IP, configWithServer.MINECRAFT_SERVER_RCON_PORT, configWithServer.DEBUG)
-        rcon.auth(configWithServer.MINECRAFT_SERVER_RCON_PASSWORD).then(() => {
-          console.log(`[${MC_VERSION} RCON] Connected and authenticated`)
-          done()
-        }).catch((err: any) => {
-          console.error(err)
-          done(err)
-        })
+      rcon = new Rcon(configWithServer.MINECRAFT_SERVER_RCON_IP, configWithServer.MINECRAFT_SERVER_RCON_PORT, configWithServer.DEBUG)
+      rcon.auth(configWithServer.MINECRAFT_SERVER_RCON_PASSWORD).then(() => {
+        console.log(`[${MC_VERSION} RCON] Connected and authenticated`)
+        done()
+      }).catch((err: any) => {
+        console.error('Failed to authenticate with RCON')
+        throw err
       })
     })
   })
@@ -86,12 +84,17 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
       if (err) {
         console.error(err)
       }
-      wrap.deleteServerData((err: any) => {
-        if (err) {
-          console.log(err)
-        }
-        done(err)
-      })
+      done()
+    })
+  })
+
+  afterAll((done) => {
+    console.log(`Cleaning up server files...`)
+    wrap.deleteServerData((err: any) => {
+      if (err) {
+        console.log(err)
+      }
+      done(err)
     })
   })
 
@@ -170,7 +173,7 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
 
       initBot().then((bot) => {
         bot.chat('Hello from mineflayer!')
-        setTimeout(() => bot.quit(), 1000)
+        bot.quit()
       })
     })
 
