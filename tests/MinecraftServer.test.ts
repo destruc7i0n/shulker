@@ -271,29 +271,16 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
     it('handles player death messages', async () => {
       const handler = new MinecraftHandler({
         ...configWithServer,
-        SHOW_PLAYER_CONN_STAT: true,
         SHOW_PLAYER_DEATH: true,
       })
 
       const bot = await initBot()
       
-      const testPromise = new Promise<void>(resolve => {
-        let joined = false
+      const deathPromise = new Promise<void>(resolve => {
         handler.init((data: LogLine) => {
           console.log(`[${MC_VERSION} SHULKER] Death message test log:`, data)
 
-          if (!data) return
-
-          // Step 1: Wait for the bot to join
-          if (!joined && data.type === 'connection') {
-            joined = true
-            // kill the bot
-            rcon.command('kill TestBot')
-            return
-          }
-
-          // Step 3: Wait for the death message
-          if (joined && data.type === 'death') {
+          if (data?.type === 'death' && data.message.includes('TestBot')) {
             handler._teardown()
             bot.quit()
             resolve()
@@ -301,7 +288,12 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
         })
       })
 
-      await testPromise
+      // Give the bot a moment to spawn before killing it.
+      setTimeout(() => {
+        rcon.command('kill TestBot')
+      }, 2000)
+
+      await deathPromise
     })
 
     it('handles player advancement messages', async () => {
