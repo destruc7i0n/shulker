@@ -111,7 +111,7 @@ class MinecraftHandler {
       return { username: `${this.config.SERVER_NAME} - Server`, message: logLine }
     } else if (this.config.SHOW_PLAYER_ME && logLine.startsWith('* ')) {
       // /me commands have the bolded name and the action they did
-      const usernameMatch = data.match(/: \* ([a-zA-Z0-9_]{1,16}) (.*)/)
+      const usernameMatch = logLine.match(/^\* ([a-zA-Z0-9_]{1,16}) (.*)/)
       if (usernameMatch) {
         const username = usernameMatch[1]
         const rest = usernameMatch[2]
