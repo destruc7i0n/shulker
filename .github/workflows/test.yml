@@ -22,21 +22,35 @@ jobs:
     - name: Build
       run: pnpm run build
 
+  generate-version-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.generate.outputs.matrix }}
+    steps:
+    - name: Generate version matrix
+      id: generate
+      run: |
+        manifest=$(curl -s https://launchermeta.mojang.com/mc/game/version_manifest.json)
+        
+        matrix='{"include":['
+        for i in {0..4}; do
+          url=$(echo "$manifest" | jq -r "[.versions[] | select(.type == \"release\") | .url][$i]")
+          version=$(echo "$manifest" | jq -r "[.versions[] | select(.type == \"release\") | .id][$i]")
+          java_version=$(curl -s "$url" | jq -r '.javaVersion.majorVersion')
+          
+          matrix+="{\"javaVersion\":$java_version,\"mcVersion\":\"$version\"}"
+          [ $i -lt 4 ] && matrix+=","
+        done
+        matrix+=']}'
+        
+        echo "matrix=$matrix" >> $GITHUB_OUTPUT
+
   server:
     runs-on: ubuntu-latest
-    needs: test
+    needs: [test, generate-version-matrix]
     timeout-minutes: 5
     strategy:
-      matrix:
-        include:
-        # - javaVersion: 17
-        #   mcVersion: '1.18.2'
-        - javaVersion: 17
-          mcVersion: '1.19.2'
-        - javaVersion: 21
-          mcVersion: '1.20.6'
-        - javaVersion: 22
-          mcVersion: '1.21.5'
+      matrix: ${{ fromJson(needs.generate-version-matrix.outputs.matrix) }}
       fail-fast: false
 
     steps:
