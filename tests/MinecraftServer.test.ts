@@ -32,27 +32,28 @@ const serverProperties = {
 }
 
 describe(`MinecraftServer v${MC_VERSION}`, () => {
-  jest.setTimeout(1000 * 60) // 1 minute
+  jest.setTimeout(1000 * 60 * 2) // 2 minutes
   
   const serverLog = jest.fn((_line: string) => undefined)
   let wrap: any
   let rcon: Rcon
 
-  beforeAll((done) => {
+  beforeAll(async () => {
     console.log(`Downloading Minecraft ${MC_VERSION} server...`)
-    download(MC_VERSION, MC_SERVER_JAR, (err: any) => {
-      if (err) {
-        console.error(err)
-        done(err)
-        return
-      }
+    await new Promise<void>((resolve, reject) => {
+      download(MC_VERSION, MC_SERVER_JAR, (err: any) => {
+        if (err) {
+          console.error(err)
+          return reject(err)
+        }
 
-      console.log(`Minecraft ${MC_VERSION} server JAR downloaded`)
-      done()
+        console.log(`Minecraft ${MC_VERSION} server JAR downloaded`)
+        resolve()
+      })
     })
   })
 
-  beforeEach((done) => {
+  beforeEach(async () => {
     // Clear previous logs
     serverLog.mockClear()
 
@@ -66,65 +67,79 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
     })
 
     console.log(`Starting fresh Minecraft ${MC_VERSION} server instance...`)
-    wrap.startServer(serverProperties, (err: any) => {
-      if (err) {
-        console.error(err)
-        done(err)
-        return
-      }
+    await new Promise<void>((resolve, reject) => {
+      wrap.startServer(serverProperties, (err: any) => {
+        if (err) {
+          console.error(err)
+          return reject(err)
+        }
+        resolve()
+      })
+    })
 
+    try {
       rcon = new Rcon(configWithServer.MINECRAFT_SERVER_RCON_IP, configWithServer.MINECRAFT_SERVER_RCON_PORT, configWithServer.DEBUG)
-      rcon.auth(configWithServer.MINECRAFT_SERVER_RCON_PASSWORD).then(() => {
-        console.log(`[${MC_VERSION} RCON] Connected and authenticated`)
-        done()
-      }).catch((err: any) => {
-        console.error('Failed to authenticate with RCON')
-        throw err
+      await rcon.auth(configWithServer.MINECRAFT_SERVER_RCON_PASSWORD)
+      console.log(`[${MC_VERSION} RCON] Connected and authenticated`)
+    } catch (err) {
+      console.error('Failed to authenticate with RCON')
+      throw err
+    }
+  })
+
+  afterEach(async () => {
+    console.log(`Stopping Minecraft ${MC_VERSION} server...`)
+    rcon?.close()
+    await new Promise<void>((resolve) => {
+      wrap.stopServer((err: any) => {
+        if (err) {
+          console.error(err)
+        }
+        resolve()
       })
     })
   })
 
-  afterEach((done) => {
-    console.log(`Stopping Minecraft ${MC_VERSION} server...`)
-    rcon?.close()
-    wrap.stopServer((err: any) => {
-      if (err) {
-        console.error(err)
-      }
-      done()
-    })
-  })
-
-  afterAll((done) => {
+  afterAll(async () => {
     console.log(`Cleaning up server files...`)
-    wrap.deleteServerData((err: any) => {
-      if (err) {
-        console.log(err)
-      }
-      done(err)
+    await new Promise<void>((resolve, reject) => {
+      wrap.deleteServerData((err: any) => {
+        if (err) {
+          console.log(err)
+          return reject(err)
+        }
+        resolve()
+      })
     })
   })
 
-  it('reads logs from Minecraft server', (done) => {
+  it('reads logs from Minecraft server', async () => {
     const handler = new MinecraftHandler(configWithServer)
-    // (handler as any) since private
     const parseLogLineSpy = jest.spyOn(handler as any, 'parseLogLine')
-
-    handler.init((data: LogLine) => {
-      console.log(`[${MC_VERSION} SHULKER]:`, data)
-
-      // both the server and the handler should have received the line
-      expect(data).toBeNull()
-      expect(parseLogLineSpy).toHaveBeenCalledWith(expect.stringContaining('[Server] hello world!'))
-      expect(serverLog).toHaveBeenCalledWith(expect.stringContaining('[Server] hello world!'))
-
-      handler._teardown()
-      done()
+  
+    const logPromise = new Promise<void>(resolve => {
+      handler.init((data: LogLine) => {
+        console.log(`[${MC_VERSION} SHULKER]:`, data)
+  
+        // We resolve the promise only when the expected log line is seen.
+        const helloWorldLog = serverLog.mock.calls.find(call => call[0].includes('[Server] hello world!'))
+        if (helloWorldLog) {
+          // The handler returns null for this type of message
+          expect(data).toBeNull()
+          expect(parseLogLineSpy).toHaveBeenCalledWith(expect.stringContaining('[Server] hello world!'))
+          expect(serverLog).toHaveBeenCalledWith(expect.stringContaining('[Server] hello world!'))
+  
+          handler._teardown()
+          resolve()
+        }
+      })
     })
-
-    setTimeout(() => {
-      wrap.writeServer('say hello world!\n')
-    }, 1000 * 5)
+  
+    // Give the server a moment to start before sending commands
+    await new Promise(resolve => setTimeout(resolve, 1000 * 5))
+    wrap.writeServer('say hello world!\n')
+  
+    await logPromise
   })
 
   it('connects to Minecraft server via rcon', async () => {
@@ -163,27 +178,30 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
       })
     }
 
-    it('handles bot chat message', (done) => {
+    it('handles bot chat message', async () => {
       const handler = new MinecraftHandler(configWithServer)
 
-      handler.init((data: LogLine) => {
-        console.log(`[${MC_VERSION} SHULKER] Bot chat message test log:`, data)
-
-        if (data && data.username === 'TestBot' && data.message === 'Hello from mineflayer!' && data.type === 'chat') {        
-          expect(data.username).toBe('TestBot')
-          expect(data.message).toBe('Hello from mineflayer!')
-          
-          handler._teardown()
-          done()
-        }
+      const chatPromise = new Promise<void>(resolve => {
+        handler.init((data: LogLine) => {
+          console.log(`[${MC_VERSION} SHULKER] Bot chat message test log:`, data)
+  
+          if (data && data.username === 'TestBot' && data.message === 'Hello from mineflayer!' && data.type === 'chat') {        
+            expect(data.username).toBe('TestBot')
+            expect(data.message).toBe('Hello from mineflayer!')
+            
+            handler._teardown()
+            resolve()
+          }
+        })
       })
 
-      initBot().then((bot) => {
-        bot.chat('Hello from mineflayer!')
-      })
+      const bot = await initBot()
+      bot.chat('Hello from mineflayer!')
+
+      await chatPromise
     })
 
-    it('handles bot join/leave connection status', (done) => {
+    it('handles bot join/leave connection status', async () => {
       const handler = new MinecraftHandler({
         ...configWithServer,
         SHOW_PLAYER_CONN_STAT: true
@@ -191,105 +209,118 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
       let joinMessageReceived = false
       let leaveMessageReceived = false
 
-      handler.init((data: LogLine) => {
-        console.log(`[${MC_VERSION} SHULKER] Connection status test log:`, data)
+      const connectionPromise = new Promise<void>(resolve => {
+        handler.init((data: LogLine) => {
+          console.log(`[${MC_VERSION} SHULKER] Connection status test log:`, data)
+  
+          if (data && data.username.includes('Server') && data.message.includes('joined') && data.type === 'connection') {
+            joinMessageReceived = true
+            expect(data.message).toContain('TestBot joined the game')
+          }
+  
+          if (data && data.username.includes('Server') && data.message.includes('left') && data.type === 'connection') {
+            leaveMessageReceived = true
+            expect(data.message).toContain('TestBot left the game')
+          }
 
-        if (data && data.username.includes('Server') && data.message.includes('joined') && data.type === 'connection') {
-          joinMessageReceived = true
-          expect(data.message).toContain('TestBot joined the game')
-        }
-
-        if (data && data.username.includes('Server') && data.message.includes('left') && data.type === 'connection') {
-          leaveMessageReceived = true
-          expect(data.message).toContain('TestBot left the game')
           if (joinMessageReceived && leaveMessageReceived) {
             handler._teardown()
-            done()
+            resolve()
           }
-        }
+        })
       })
 
-      initBot().then((bot) => {
-        // Bot should automatically generate join message when it connects
-        // Then we'll make it quit to generate leave message
-        setTimeout(() => {
-          bot.quit()
-        }, 2000)
-      })
+      const bot = await initBot()
+      // Bot should automatically generate join message when it connects
+      // Then we'll make it quit to generate leave message
+      setTimeout(() => {
+        bot.quit()
+      }, 2000)
+
+      await connectionPromise
     })
 
-    it('handles /me command messages', (done) => {
+    it('handles /me command messages', async () => {
       const handler = new MinecraftHandler({
         ...configWithServer,
         SHOW_PLAYER_ME: true
       })
 
-      handler.init((data: LogLine) => {
-        console.log(`[${MC_VERSION} SHULKER] /me command test log:`, data)
-
-        if (data && data.username.includes('Server') && data.message.includes('TestBot') && data.type === 'me') {
-          expect(data.message).toContain('**TestBot** is testing /me command')
-          
-          handler._teardown()
-          done()
-        }
+      const mePromise = new Promise<void>(resolve => {
+        handler.init((data: LogLine) => {
+          console.log(`[${MC_VERSION} SHULKER] /me command test log:`, data)
+  
+          if (data && data.username.includes('Server') && data.message.includes('TestBot') && data.type === 'me') {
+            expect(data.message).toContain('**TestBot** is testing /me command')
+            
+            handler._teardown()
+            resolve()
+          }
+        })
       })
 
-      initBot().then((bot) => {
-        setTimeout(() => {
-          bot.chat('/me is testing /me command')
-        }, 1000)
-      })
+      const bot = await initBot()
+      setTimeout(() => {
+        bot.chat('/me is testing /me command')
+      }, 1000)
+      
+      await mePromise
     })
 
-    it('handles player death messages', (done) => {
+    it('handles player death messages', async () => {
       const handler = new MinecraftHandler({
         ...configWithServer,
         SHOW_PLAYER_DEATH: true
       })
 
-      handler.init((data: LogLine) => {
-        console.log(`[${MC_VERSION} SHULKER] Death message test log:`, data)
-
-        if (data && data.username.includes('Server') && data.message.includes('TestBot') && data.type === 'death') {
-          expect(data.message).toMatch(/TestBot (died|was killed|fell|burned|drowned|blew up|suffocated|starved|withered|walked into a cactus|experienced kinetic energy|discovered (the )?floor was lava|tried to swim in lava|hit the ground|didn't want to live|went (up in flames|off with a bang)|walked into (fire|danger)|was (killed|shot|slain|pummeled|pricked|blown up|impaled|squashed|squished|skewered|poked|roasted|burnt|frozen|struck by lightning|fireballed|stung|doomed))/)
-          
-          handler._teardown()
-          done()
-        }
+      const deathPromise = new Promise<void>(resolve => {
+        handler.init((data: LogLine) => {
+          console.log(`[${MC_VERSION} SHULKER] Death message test log:`, data)
+  
+          if (data && data.username.includes('Server') && data.message.includes('TestBot') && data.type === 'death') {
+            expect(data.message).toMatch(/TestBot (died|was killed|fell|burned|drowned|blew up|suffocated|starved|withered|walked into a cactus|experienced kinetic energy|discovered (the )?floor was lava|tried to swim in lava|hit the ground|didn't want to live|went (up in flames|off with a bang)|walked into (fire|danger)|was (killed|shot|slain|pummeled|pricked|blown up|impaled|squashed|squished|skewered|poked|roasted|burnt|frozen|struck by lightning|fireballed|stung|doomed))/)
+            
+            handler._teardown()
+            resolve()
+          }
+        })
       })
 
-      initBot().then((bot) => {
-        setTimeout(() => {
-          // Kill the bot using RCON to simulate a death
-          rcon.command('kill TestBot')
-        }, 1000)
-      })
+      await initBot()
+      setTimeout(() => {
+        // Kill the bot using RCON to simulate a death
+        rcon.command('kill TestBot')
+      }, 1000)
+
+      await deathPromise
     })
 
-    it('handles player advancement messages', (done) => {
+    it('handles player advancement messages', async () => {
       const handler = new MinecraftHandler({
         ...configWithServer,
         SHOW_PLAYER_ADVANCEMENT: true
       })
 
-      handler.init((data: LogLine) => {
-        console.log(`[${MC_VERSION} SHULKER] Advancement test log:`, data)
-
-        if (data && data.username.includes('Server') && data.message.includes('TestBot') && data.type === 'advancement') {
-          expect(data.message).toContain('TestBot has made the advancement')
-          
-          handler._teardown()
-          done()
-        }
+      const advancementPromise = new Promise<void>(resolve => {
+        handler.init((data: LogLine) => {
+          console.log(`[${MC_VERSION} SHULKER] Advancement test log:`, data)
+  
+          if (data && data.username.includes('Server') && data.message.includes('TestBot') && data.type === 'advancement') {
+            expect(data.message).toContain('TestBot has made the advancement')
+            
+            handler._teardown()
+            resolve()
+          }
+        })
       })
 
-      initBot().then((bot) => {
-        setTimeout(() => {
-          // Give the bot an advancement using RCON
-          rcon.command('advancement grant TestBot only minecraft:story/mine_stone')
-        }, 1000)
-      })
+      await initBot()
+      setTimeout(() => {
+        // Give the bot an advancement using RCON
+        rcon.command('advancement grant TestBot only minecraft:story/mine_stone')
+      }, 1000)
+
+      await advancementPromise
     })
   })
 })

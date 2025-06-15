@@ -1,4 +1,4 @@
-name: Test
+name: CI
 on: [push]
 
 jobs:
@@ -78,7 +78,7 @@ jobs:
 
   server:
     runs-on: ubuntu-latest
-    needs: [test, generate-version-matrix]
+    needs: [generate-version-matrix]
     timeout-minutes: 5
     strategy:
       matrix: ${{ fromJson(needs.generate-version-matrix.outputs.matrix) }}
