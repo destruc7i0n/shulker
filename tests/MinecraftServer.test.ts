@@ -55,7 +55,9 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
     // Clear previous logs
     serverLog.mockClear()
 
-    wrap = new Wrap(MC_SERVER_JAR, MC_SERVER_PATH)
+    wrap = new Wrap(MC_SERVER_JAR, MC_SERVER_PATH, {
+      doneRegex: /\[.+\]: RCON running on/
+    })
     
     wrap.on('line', (line: string) => {
       console.log(`[${MC_VERSION} SERVER] ${line}`)
@@ -70,16 +72,14 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
         return
       }
 
-      setTimeout(() => {
-        rcon = new Rcon(configWithServer.MINECRAFT_SERVER_RCON_IP, configWithServer.MINECRAFT_SERVER_RCON_PORT, configWithServer.DEBUG)
-        rcon.auth(configWithServer.MINECRAFT_SERVER_RCON_PASSWORD).then(() => {
-          console.log(`[${MC_VERSION} RCON] Connected and authenticated`)
-          done()
-        }).catch((err: any) => {
-          console.error('Failed to authenticate with RCON')
-          throw err
-        })
-      }, 1000 * 2)
+      rcon = new Rcon(configWithServer.MINECRAFT_SERVER_RCON_IP, configWithServer.MINECRAFT_SERVER_RCON_PORT, configWithServer.DEBUG)
+      rcon.auth(configWithServer.MINECRAFT_SERVER_RCON_PASSWORD).then(() => {
+        console.log(`[${MC_VERSION} RCON] Connected and authenticated`)
+        done()
+      }).catch((err: any) => {
+        console.error('Failed to authenticate with RCON')
+        throw err
+      })
     })
   })
 
