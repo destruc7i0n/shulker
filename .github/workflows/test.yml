@@ -85,7 +85,7 @@ jobs:
       with:
         distribution: 'temurin'
         java-version: ${{ matrix.javaVersion }}
-        java-package: jre
+        java-package: jdk
     - name: Install packages
       run: pnpm install --frozen-lockfile
     - name: Test
