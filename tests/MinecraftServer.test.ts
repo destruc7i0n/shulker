@@ -34,7 +34,7 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
   jest.setTimeout(1000 * 60) // 1 minute
   
   const serverLog = jest.fn((_line: string) => undefined)
-  let wrap: typeof Wrap
+  let wrap: any
   let rcon: Rcon
 
   beforeAll((done) => {
