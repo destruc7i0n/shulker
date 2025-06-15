@@ -24,60 +24,40 @@ jobs:
     outputs:
       matrix: ${{ steps.generate.outputs.matrix }}
     steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+    - name: Install packages
+      run: yarn install --frozen-lockfile
     - name: Generate version matrix
       id: generate
       run: |
-        python3 -c "
-        import json, urllib.request
-        from collections import defaultdict
+        node -e "
+        const { testedVersions } = require('mineflayer/lib/version');
         
-        # Maximum supported version
-        max_version = '1.21.3'
-        max_major = '.'.join(max_version.split('.')[:2])
+        function compareVersions(a, b) {
+          const aTuple = a.split('.').map(Number);
+          const bTuple = b.split('.').map(Number);
+          for (let i = 0; i < Math.max(aTuple.length, bTuple.length); i++) {
+            const aVal = aTuple[i] || 0;
+            const bVal = bTuple[i] || 0;
+            if (aVal < bVal) return -1;
+            if (aVal > bVal) return 1;
+          }
+          return 0;
+        }
         
-        def version_tuple(version_str):
-          return tuple(map(int, version_str.split('.')))
+        const versionsToTest = testedVersions.slice(-10);
         
-        # Fetch manifest
-        with urllib.request.urlopen('https://launchermeta.mojang.com/mc/game/version_manifest.json') as f:
-          manifest = json.load(f)
+        const matrixItems = versionsToTest.map(mcVersion => ({
+          javaVersion: 21, // assume java 21 is supported
+          mcVersion
+        }));
         
-        # Group releases by major version, filtering out versions above max
-        major_versions = defaultdict(list)
-        for version in manifest['versions']:
-          if version['type'] == 'release':
-            major = '.'.join(version['id'].split('.')[:2])
-            # Only include major versions that are <= max_major
-            if version_tuple(major) <= version_tuple(max_major):
-              major_versions[major].append(version)
+        matrixItems.sort((a, b) => -compareVersions(a.mcVersion, b.mcVersion));
         
-        matrix_items = []
-        sorted_majors = sorted(major_versions.keys(), key=lambda v: tuple(map(int, v.split('.'))), reverse=True)
-        for major in sorted_majors[:5]:
-          if major == max_major:
-            # Use the exact max version for the max major version
-            selected_version = None
-            for version in manifest['versions']:
-              if version['id'] == max_version and version['type'] == 'release':
-                selected_version = version
-                break
-            if not selected_version:
-              selected_version = major_versions[major][0]
-          else:
-            # Use the latest version for other major versions
-            selected_version = major_versions[major][0]
-
-          with urllib.request.urlopen(selected_version['url']) as f:
-            version_data = json.load(f)
-          
-          java_version = version_data.get('javaVersion', {}).get('majorVersion', 8)
-          matrix_items.append({
-            'javaVersion': java_version,
-            'mcVersion': selected_version['id']
-          })
-        
-        matrix = {'include': matrix_items}
-        print('matrix=' + json.dumps(matrix, separators=(',', ':'))) 
+        const matrix = { include: matrixItems };
+        console.log('matrix=' + JSON.stringify(matrix));
         " >> $GITHUB_OUTPUT
 
   server:
