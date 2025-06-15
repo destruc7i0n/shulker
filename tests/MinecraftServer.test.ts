@@ -164,7 +164,7 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
       handler.init((data: LogLine) => {
         console.log(`[${MC_VERSION} SHULKER] Got message:`, data)
 
-        if (data && data.username === 'TestBot' && data.message === 'Hello from mineflayer!') {        
+        if (data && data.username === 'TestBot' && data.message === 'Hello from mineflayer!' && data.type === 'chat') {        
           expect(data.username).toBe('TestBot')
           expect(data.message).toBe('Hello from mineflayer!')
           
@@ -190,12 +190,12 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
       handler.init((data: LogLine) => {
         console.log(`[${MC_VERSION} SHULKER] Connection status test log:`, data)
 
-        if (data && data.username.includes('Server') && data.message.includes('TestBot joined the game')) {
+        if (data && data.username.includes('Server') && data.message.includes('joined') && data.type === 'connection') {
           joinMessageReceived = true
           expect(data.message).toContain('TestBot joined the game')
         }
 
-        if (data && data.username.includes('Server') && data.message.includes('TestBot left the game')) {
+        if (data && data.username.includes('Server') && data.message.includes('left') && data.type === 'connection') {
           leaveMessageReceived = true
           expect(data.message).toContain('TestBot left the game')
           if (joinMessageReceived && leaveMessageReceived) {
@@ -223,7 +223,7 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
       handler.init((data: LogLine) => {
         console.log(`[${MC_VERSION} SHULKER] /me command test log:`, data)
 
-        if (data && data.username.includes('Server') && data.message.includes('**TestBot**')) {
+        if (data && data.username.includes('Server') && data.message.includes('TestBot') && data.type === 'me') {
           expect(data.message).toContain('**TestBot** is testing /me command')
           
           handler._teardown()
@@ -247,7 +247,7 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
       handler.init((data: LogLine) => {
         console.log(`[${MC_VERSION} SHULKER] Death message test log:`, data)
 
-        if (data && data.username.includes('Server') && data.message.includes('TestBot')) {
+        if (data && data.username.includes('Server') && data.message.includes('TestBot') && data.type === 'death') {
           expect(data.message).toMatch(/TestBot (died|was killed|fell|burned|drowned|blew up|suffocated|starved|withered|walked into a cactus|experienced kinetic energy|discovered (the )?floor was lava|tried to swim in lava|hit the ground|didn't want to live|went (up in flames|off with a bang)|walked into (fire|danger)|was (killed|shot|slain|pummeled|pricked|blown up|impaled|squashed|squished|skewered|poked|roasted|burnt|frozen|struck by lightning|fireballed|stung|doomed))/)
           
           handler._teardown()
@@ -272,7 +272,7 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
       handler.init((data: LogLine) => {
         console.log(`[${MC_VERSION} SHULKER] Advancement test log:`, data)
 
-        if (data && data.username.includes('Server') && data.message.includes('TestBot') && data.message.includes('made the advancement')) {
+        if (data && data.username.includes('Server') && data.message.includes('TestBot') && data.type === 'advancement') {
           expect(data.message).toContain('TestBot has made the advancement')
           
           handler._teardown()
