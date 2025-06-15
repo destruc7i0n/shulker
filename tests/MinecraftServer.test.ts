@@ -275,6 +275,10 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
       })
 
       const bot = await initBot()
+
+      wrap.writeServer('op TestBot\n')
+      // wait for the op to take effect
+      await new Promise(resolve => setTimeout(resolve, 1000))
       
       const deathPromise = new Promise<void>(resolve => {
         handler.init((data: LogLine) => {
@@ -290,7 +294,7 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
 
       // Give the bot a moment to spawn before killing it.
       setTimeout(() => {
-        rcon.command('kill TestBot')
+        bot.chat('kill @s')
       }, 2000)
 
       await deathPromise
@@ -318,7 +322,7 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
       await initBot()
       setTimeout(() => {
         // Give the bot an advancement using RCON
-        rcon.command('advancement grant TestBot only minecraft:story/mine_stone')
+        wrap.writeServer('advancement grant TestBot only minecraft:story/mine_stone\n')
       }, 1000)
 
       await advancementPromise
