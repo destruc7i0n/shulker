@@ -46,7 +46,8 @@ jobs:
             major_versions[major].append(version)
         
         matrix_items = []
-        for major in sorted(major_versions.keys(), reverse=True)[:5]:
+        sorted_majors = sorted(major_versions.keys(), key=lambda v: tuple(map(int, v.split('.'))), reverse=True)
+        for major in sorted_majors[:5]:
           latest = major_versions[major][0]  # First is latest
           
           # Fetch Java version
