@@ -30,20 +30,37 @@ jobs:
     - name: Generate version matrix
       id: generate
       run: |
-        manifest=$(curl -s https://launchermeta.mojang.com/mc/game/version_manifest.json)
+        python3 -c "
+        import json, urllib.request
+        from collections import defaultdict
         
-        matrix='{"include":['
-        for i in {0..4}; do
-          url=$(echo "$manifest" | jq -r "[.versions[] | select(.type == \"release\") | .url][$i]")
-          version=$(echo "$manifest" | jq -r "[.versions[] | select(.type == \"release\") | .id][$i]")
-          java_version=$(curl -s "$url" | jq -r '.javaVersion.majorVersion')
+        # Fetch manifest
+        with urllib.request.urlopen('https://launchermeta.mojang.com/mc/game/version_manifest.json') as f:
+          manifest = json.load(f)
+        
+        # Group releases by major version
+        major_versions = defaultdict(list)
+        for version in manifest['versions']:
+          if version['type'] == 'release':
+            major = '.'.join(version['id'].split('.')[:2])  # e.g., '1.21' from '1.21.5'
+            major_versions[major].append(version)
+        
+        matrix_items = []
+        for major in sorted(major_versions.keys(), reverse=True)[:5]:
+          latest = major_versions[major][0]  # First is latest
           
-          matrix+="{\"javaVersion\":$java_version,\"mcVersion\":\"$version\"}"
-          [ $i -lt 4 ] && matrix+=","
-        done
-        matrix+=']}'
+          # Fetch Java version
+          with urllib.request.urlopen(latest['url']) as f:
+            version_data = json.load(f)
+          
+          matrix_items.append({
+            'javaVersion': version_data['javaVersion']['majorVersion'],
+            'mcVersion': latest['id']
+          })
         
-        echo "matrix=$matrix" >> $GITHUB_OUTPUT
+        matrix = {'include': matrix_items}
+        print(f'matrix={json.dumps(matrix, separators=(\",\", \":\")))') 
+        " >> $GITHUB_OUTPUT
 
   server:
     runs-on: ubuntu-latest
