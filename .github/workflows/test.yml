@@ -33,7 +33,7 @@ jobs:
       id: generate
       run: |
         node -e "
-        const { testedVersions } = require('mineflayer/lib/version');
+        const { testedVersions } = require('./node_modules/mineflayer/lib/version');
         
         function compareVersions(a, b) {
           const aTuple = a.split('.').map(Number);
