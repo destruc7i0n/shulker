@@ -53,8 +53,9 @@ jobs:
           with urllib.request.urlopen(latest['url']) as f:
             version_data = json.load(f)
           
+          java_version = version_data.get('javaVersion', {}).get('majorVersion', 8)
           matrix_items.append({
-            'javaVersion': version_data['javaVersion']['majorVersion'],
+            'javaVersion': java_version,
             'mcVersion': latest['id']
           })
         
