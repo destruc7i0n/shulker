@@ -179,7 +179,6 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
 
       initBot().then((bot) => {
         bot.chat('Hello from mineflayer!')
-        bot.quit()
       })
     })
 
