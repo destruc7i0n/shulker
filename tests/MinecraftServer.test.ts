@@ -71,18 +71,22 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
   })
 
   afterEach((done) => {
-    console.log(`Stopping Minecraft ${MC_VERSION} server and cleaning up...`)
+    console.log(`Stopping Minecraft ${MC_VERSION} server...`)
     wrap.stopServer((err: any) => {
       if (err) {
         console.error(err)
       }
-      // Clean up server data after each test
-      wrap.deleteServerData((err: any) => {
-        if (err) {
-          console.log(err)
-        }
-        done(err)
-      })
+      done()
+    })
+  })
+
+  afterAll((done) => {
+    console.log(`Cleaning up server files...`)
+    wrap.deleteServerData((err: any) => {
+      if (err) {
+        console.log(err)
+      }
+      done(err)
     })
   })
 
