@@ -34,6 +34,11 @@ jobs:
         import json, urllib.request
         from collections import defaultdict
         
+        # mineflayer supports to 1.21.3
+        version_overrides = {
+          '1.21': '1.21.3'
+        }
+        
         # Fetch manifest
         with urllib.request.urlopen('https://launchermeta.mojang.com/mc/game/version_manifest.json') as f:
           manifest = json.load(f)
@@ -42,22 +47,31 @@ jobs:
         major_versions = defaultdict(list)
         for version in manifest['versions']:
           if version['type'] == 'release':
-            major = '.'.join(version['id'].split('.')[:2])  # e.g., '1.21' from '1.21.5'
+            major = '.'.join(version['id'].split('.')[:2])
             major_versions[major].append(version)
         
         matrix_items = []
         sorted_majors = sorted(major_versions.keys(), key=lambda v: tuple(map(int, v.split('.'))), reverse=True)
         for major in sorted_majors[:5]:
-          latest = major_versions[major][0]  # First is latest
-          
-          # Fetch Java version
-          with urllib.request.urlopen(latest['url']) as f:
+          if major in version_overrides:
+            target_version = version_overrides[major]
+            selected_version = None
+            for version in manifest['versions']:
+              if version['id'] == target_version and version['type'] == 'release':
+                selected_version = version
+                break
+            if not selected_version:
+              selected_version = major_versions[major][0]
+          else:
+            selected_version = major_versions[major][0]
+
+          with urllib.request.urlopen(selected_version['url']) as f:
             version_data = json.load(f)
           
           java_version = version_data.get('javaVersion', {}).get('majorVersion', 8)
           matrix_items.append({
             'javaVersion': java_version,
-            'mcVersion': latest['id']
+            'mcVersion': selected_version['id']
           })
         
         matrix = {'include': matrix_items}
