@@ -38,37 +38,45 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
 
   beforeAll((done) => {
     console.log(`Downloading Minecraft ${MC_VERSION} server...`)
-
-    wrap.on('line', (line: string) => {
-      console.log(`[${MC_VERSION} SERVER] ${line}`)
-      serverLog(line)
-    })
-
+    
     download(MC_VERSION, MC_SERVER_JAR, (err: any) => {
       if (err) {
         console.error(err)
         done(err)
         return
       }
-
-      console.log(`Starting Minecraft ${MC_VERSION} server...`)
-      wrap.startServer(serverProperties, (err: any) => {
-        if (err) {
-          console.error(err)
-          done(err)
-          return
-        }
-        done()
-      })
+      console.log(`Minecraft ${MC_VERSION} server JAR downloaded`)
+      done()
     })
   })
 
-  afterAll((done) => {
+  beforeEach((done) => {
+    // Clear previous logs
+    serverLog.mockClear()
+    
+    wrap.on('line', (line: string) => {
+      console.log(`[${MC_VERSION} SERVER] ${line}`)
+      serverLog(line)
+    })
+
+    console.log(`Starting fresh Minecraft ${MC_VERSION} server instance...`)
+    wrap.startServer(serverProperties, (err: any) => {
+      if (err) {
+        console.error(err)
+        done(err)
+        return
+      }
+      done()
+    })
+  })
+
+  afterEach((done) => {
+    console.log(`Stopping Minecraft ${MC_VERSION} server and cleaning up...`)
     wrap.stopServer((err: any) => {
       if (err) {
         console.error(err)
       }
-      // done()
+      // Clean up server data after each test
       wrap.deleteServerData((err: any) => {
         if (err) {
           console.log(err)
@@ -88,6 +96,8 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
     handler.init((data: LogLine) => {
       console.log(`[${MC_VERSION} SHULKER]:`, data)
 
+      wrap.writeServer('say hello world!\n')
+
       // both the server and the handler should have received the line
       expect(data).toBeNull()
       expect(parseLogLineSpy).toHaveBeenCalledWith(expect.stringContaining('[Server] hello world!'))
@@ -96,11 +106,6 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
       handler._teardown()
       done()
     })
-
-    setTimeout(() => {
-      // simulate a chat message after a few seconds
-      wrap.writeServer('say hello world!\n')
-    }, 1000 * 10)
   })
 
   it('connects to Minecraft server via rcon', async () => {
@@ -109,7 +114,8 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
 
     await rcon.command('say hello world from rcon!')
 
-    await new Promise((resolve) => setTimeout(resolve, 1000 * 2))
+    // Give a brief moment for the message to propagate to logs
+    await new Promise(resolve => setTimeout(resolve, 100))
 
     expect(serverLog).toHaveBeenCalledWith(expect.stringContaining('[Rcon] hello world from rcon!'))
 
