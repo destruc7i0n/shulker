@@ -22,8 +22,6 @@ const configWithServer = {
   MINECRAFT_SERVER_RCON_PASSWORD: RCON_PASSWORD
 }
 
-const wrap = new Wrap(MC_SERVER_JAR, MC_SERVER_PATH)
-
 const serverProperties = {
   'online-mode': 'false',
   'level-type': 'FLAT',
@@ -33,6 +31,7 @@ const serverProperties = {
 }
 
 describe(`MinecraftServer v${MC_VERSION}`, () => {
+  let wrap: Wrap
   jest.setTimeout(1000 * 60) // 1 minutes
   const serverLog = jest.fn((_line: string) => undefined)
   let rcon: Rcon
@@ -55,6 +54,8 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
   beforeEach((done) => {
     // Clear previous logs
     serverLog.mockClear()
+
+    wrap = new Wrap(MC_SERVER_JAR, MC_SERVER_PATH)
     
     wrap.on('line', (line: string) => {
       console.log(`[${MC_VERSION} SERVER] ${line}`)
@@ -272,7 +273,7 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
         console.log(`[${MC_VERSION} SHULKER] Advancement test log:`, data)
 
         if (data && data.username.includes('Server') && data.message.includes('TestBot') && data.message.includes('made the advancement')) {
-          expect(data.message).toContain('TestBot made the advancement')
+          expect(data.message).toContain('TestBot has made the advancement')
           
           handler._teardown()
           done()
