@@ -24,18 +24,16 @@ jobs:
     outputs:
       matrix: ${{ steps.generate.outputs.matrix }}
     steps:
-    - uses: actions/setup-node@v4
-      with:
-        node-version: '22.x'
+    - uses: oven-sh/setup-bun@v2
     - name: Install mineflayer
-      run: npm install mineflayer@latest
-    - name: Generate version matrix
+      run: bun add mineflayer@latest
+        - name: Generate version matrix
       id: generate
       run: |
-        node -e "
+        bun -e "
         const { testedVersions } = require('mineflayer/lib/version');
         
-        function compareVersions(a, b) {
+        const compareVersions = (a, b) => {
           const aTuple = a.split('.').map(Number);
           const bTuple = b.split('.').map(Number);
           for (let i = 0; i < Math.max(aTuple.length, bTuple.length); i++) {
@@ -45,19 +43,35 @@ jobs:
             if (aVal > bVal) return 1;
           }
           return 0;
-        }
+        };
         
         const versionsToTest = testedVersions.slice(-10);
         
-        const matrixItems = versionsToTest.map(mcVersion => ({
-          javaVersion: 21, // assume java 21 is supported
-          mcVersion
+        const manifest = await fetch('https://launchermeta.mojang.com/mc/game/version_manifest.json').then(r => r.json());
+        const versionMap = Object.fromEntries(manifest.versions.map(v => [v.id, v]));
+        
+        const matrixItems = await Promise.all(versionsToTest.map(async mcVersion => {
+          const versionInfo = versionMap[mcVersion];
+          if (!versionInfo) {
+            console.error('Version not found in manifest:', mcVersion);
+            return { javaVersion: 21, mcVersion };
+          }
+          
+          try {
+            const versionDetails = await fetch(versionInfo.url).then(r => r.json());
+            const javaVersion = versionDetails.javaVersion?.majorVersion || 21;
+            return { javaVersion, mcVersion };
+          } catch (err) {
+            console.error('Error fetching version data for', mcVersion, ':', err);
+            return {
+              javaVersion: 21, // assume java 21 is supported
+              mcVersion
+            };
+          }
         }));
         
         matrixItems.sort((a, b) => -compareVersions(a.mcVersion, b.mcVersion));
-        
-        const matrix = { include: matrixItems };
-        console.log('matrix=' + JSON.stringify(matrix));
+        console.log('matrix=' + JSON.stringify({ include: matrixItems }));
         " >> $GITHUB_OUTPUT
 
   server:
