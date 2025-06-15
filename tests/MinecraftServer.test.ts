@@ -270,29 +270,50 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
     it('handles player death messages', async () => {
       const handler = new MinecraftHandler({
         ...configWithServer,
-        SHOW_PLAYER_DEATH: true
-      })
+        SHOW_PLAYER_DEATH: true,
+        SHOW_PLAYER_CONN_STAT: true,
+      });
 
-      const deathPromise = new Promise<void>(resolve => {
-        handler.init((data: LogLine) => {
-          console.log(`[${MC_VERSION} SHULKER] Death message test log:`, data)
-  
-          if (data && data.username.includes('Server') && data.message.includes('TestBot') && data.type === 'death') {
-            expect(data.message).toMatch(/TestBot (died|was killed|fell|burned|drowned|blew up|suffocated|starved|withered|walked into a cactus|experienced kinetic energy|discovered (the )?floor was lava|tried to swim in lava|hit the ground|didn't want to live|went (up in flames|off with a bang)|walked into (fire|danger)|was (killed|shot|slain|pummeled|pricked|blown up|impaled|squashed|squished|skewered|poked|roasted|burnt|frozen|struck by lightning|fireballed|stung|doomed))/)
+      let bot: mineflayer.Bot;
+      let resolveJoin: () => void;
+      let resolveDeath: (message: string) => void;
+
+      const joinPromise = new Promise<void>(resolve => {
+        resolveJoin = resolve;
+      });
+      const deathPromise = new Promise<string>(resolve => {
+        resolveDeath = resolve;
+      });
+
+      handler.init((data: LogLine) => {
+        console.log(`[${MC_VERSION} SHULKER] Death message test log:`, data);
+
+        if (data?.type === 'connection' && data.message.includes('TestBot joined')) {
+          console.log('Bot has joined.');
+          resolveJoin();
+        }
+
+        if (data?.type === 'death' && data.message.includes('TestBot')) {
+          console.log('Death message received.');
+          resolveDeath(data.message);
+        }
+      });
+
+      bot = await initBot();
+
+      console.log('Waiting for bot to join...');
+      await joinPromise;
+
+      console.log('Killing bot...');
+      rcon.command('kill TestBot');
+
+      // Step 4: Wait for death message
+      const deathMessage = await deathPromise;
+
+      expect(deathMessage).toMatch(/TestBot (died|was killed|fell|burned|drowned|blew up|suffocated|starved|withered|walked into a cactus|experienced kinetic energy|discovered (the )?floor was lava|tried to swim in lava|hit the ground|didn't want to live|went (up in flames|off with a bang)|walked into (fire|danger)|was (killed|shot|slain|pummeled|pricked|blown up|impaled|squashed|squished|skewered|poked|roasted|burnt|frozen|struck by lightning|fireballed|stung|doomed))/);
             
-            handler._teardown()
-            resolve()
-          }
-        })
-      })
-
-      await initBot()
-      setTimeout(() => {
-        // Kill the bot using RCON to simulate a death
-        rcon.command('kill TestBot')
-      }, 1000)
-
-      await deathPromise
+      handler._teardown();
+      bot.quit();
     })
 
     it('handles player advancement messages', async () => {
