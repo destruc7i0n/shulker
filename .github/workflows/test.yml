@@ -34,35 +34,40 @@ jobs:
         import json, urllib.request
         from collections import defaultdict
         
-        # mineflayer supports to 1.21.3
-        version_overrides = {
-          '1.21': '1.21.3'
-        }
+        # Maximum supported version
+        max_version = '1.21.3'
+        max_major = '.'.join(max_version.split('.')[:2])
+        
+        def version_tuple(version_str):
+          return tuple(map(int, version_str.split('.')))
         
         # Fetch manifest
         with urllib.request.urlopen('https://launchermeta.mojang.com/mc/game/version_manifest.json') as f:
           manifest = json.load(f)
         
-        # Group releases by major version
+        # Group releases by major version, filtering out versions above max
         major_versions = defaultdict(list)
         for version in manifest['versions']:
           if version['type'] == 'release':
             major = '.'.join(version['id'].split('.')[:2])
-            major_versions[major].append(version)
+            # Only include major versions that are <= max_major
+            if version_tuple(major) <= version_tuple(max_major):
+              major_versions[major].append(version)
         
         matrix_items = []
         sorted_majors = sorted(major_versions.keys(), key=lambda v: tuple(map(int, v.split('.'))), reverse=True)
         for major in sorted_majors[:5]:
-          if major in version_overrides:
-            target_version = version_overrides[major]
+          if major == max_major:
+            # Use the exact max version for the max major version
             selected_version = None
             for version in manifest['versions']:
-              if version['id'] == target_version and version['type'] == 'release':
+              if version['id'] == max_version and version['type'] == 'release':
                 selected_version = version
                 break
             if not selected_version:
               selected_version = major_versions[major][0]
           else:
+            # Use the latest version for other major versions
             selected_version = major_versions[major][0]
 
           with urllib.request.urlopen(selected_version['url']) as f:
