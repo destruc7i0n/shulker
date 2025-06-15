@@ -52,7 +52,11 @@ class MinecraftHandler {
       return null
     }
 
-    const logLine = logLineData[1]
+    let logLine = logLineData[1]
+
+    if (logLine.startsWith('[Not Secure] ')) {
+      logLine = logLine.substring(13)
+    }
 
     // the username used for server messages
     const serverUsername = `${this.config.SERVER_NAME} - Server`
