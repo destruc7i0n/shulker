@@ -24,57 +24,13 @@ jobs:
     outputs:
       matrix: ${{ steps.generate.outputs.matrix }}
     steps:
+    - uses: actions/checkout@v4
     - uses: oven-sh/setup-bun@v2
     - name: Install mineflayer
       run: bun add mineflayer@latest
     - name: Generate version matrix
       id: generate
-      run: |
-        bun -e "
-        const { testedVersions } = require('mineflayer/lib/version');
-
-        const FALLBACK_JAVA_VERSION = 21;
-        
-        const compareVersions = (a, b) => {
-          const aTuple = a.split('.').map(Number);
-          const bTuple = b.split('.').map(Number);
-          for (let i = 0; i < Math.max(aTuple.length, bTuple.length); i++) {
-            const aVal = aTuple[i] || 0;
-            const bVal = bTuple[i] || 0;
-            if (aVal < bVal) return -1;
-            if (aVal > bVal) return 1;
-          }
-          return 0;
-        };
-        
-        const versionsToTest = testedVersions.slice(-10);
-        
-        const manifest = await (await fetch('https://launchermeta.mojang.com/mc/game/version_manifest.json')).json();
-        const versionMap = Object.fromEntries(manifest.versions.map(v => [v.id, v]));
-        
-        const matrixItems = await Promise.all(versionsToTest.map(async (mcVersion) => {
-          const versionInfo = versionMap[mcVersion];
-          if (!versionInfo) {
-            console.error('Version not found in manifest:', mcVersion);
-            return { javaVersion: FALLBACK_JAVA_VERSION, mcVersion };
-          }
-          
-          try {
-            const versionDetails = await (await fetch(versionInfo.url)).json();
-            const javaVersion = versionDetails.javaVersion?.majorVersion ?? FALLBACK_JAVA_VERSION;
-            return { javaVersion, mcVersion };
-          } catch (err) {
-            console.error('Error fetching version data for', mcVersion, ':', err);
-            return {
-              javaVersion: FALLBACK_JAVA_VERSION,
-              mcVersion
-            };
-          }
-        }));
-        
-        matrixItems.sort((a, b) => -compareVersions(a.mcVersion, b.mcVersion));
-        console.log('matrix=' + JSON.stringify({ include: matrixItems }));
-        " >> $GITHUB_OUTPUT
+      run: bun run tests/versionMatrix.ts
 
   server:
     runs-on: ubuntu-latest

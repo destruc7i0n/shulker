@@ -4,10 +4,11 @@ import mineflayer from 'mineflayer'
 import Rcon from '../src/Rcon'
 import MinecraftHandler, { LogLine } from '../src/MinecraftHandler'
 import { defaultConfig } from './constants'
+import { compareVersions } from './lib'
 
 const { Wrap, download } = require('minecraft-wrap')
 
-const MC_VERSION = process.env['MC_VERSION']
+const MC_VERSION = process.env['MC_VERSION']!
 const MC_SERVER_PATH = path.resolve(`./tests/server/server-${MC_VERSION}`)
 const MC_SERVER_JAR = path.join(MC_SERVER_PATH, `${MC_VERSION}.jar`)
 
@@ -269,9 +270,18 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
     })
 
     it('handles player death messages', async () => {
+      let deathMessageRegexString: string | undefined = undefined
+      if (compareVersions(MC_VERSION, '1.21.4') >= 0) {
+        // Killed TestBot
+        deathMessageRegexString = 'Killed ^[\\w_]+'
+      } else {
+        deathMessageRegexString = configWithServer.REGEX_DEATH_MESSAGE
+      }
+
       const handler = new MinecraftHandler({
         ...configWithServer,
         SHOW_PLAYER_DEATH: true,
+        REGEX_DEATH_MESSAGE: deathMessageRegexString
       })
 
       const bot = await initBot()
