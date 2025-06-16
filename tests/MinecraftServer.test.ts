@@ -271,12 +271,15 @@ describe(`MinecraftServer v${MC_VERSION}`, () => {
 
     it('handles player death messages', async () => {
       let deathMessageRegexString: string | undefined = undefined
+      
+      // if greater than or equal to 1.21.4, use the new death message regex
       if (compareVersions(MC_VERSION, '1.21.4') >= 0) {
-        // Killed TestBot
-        deathMessageRegexString = 'Killed ^[\\w_]+'
+        deathMessageRegexString = 'Killed [\\w_]+'
       } else {
         deathMessageRegexString = configWithServer.REGEX_DEATH_MESSAGE
       }
+
+      console.log(`[${MC_VERSION} SHULKER] Death message regex: ${deathMessageRegexString}`)
 
       const handler = new MinecraftHandler({
         ...configWithServer,
