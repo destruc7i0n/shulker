@@ -1,0 +1,23 @@
+## CorQB - Oct 25, 2025
+
+## /etc/systemd/system/shulker.service
+## Use this file to start shulker automatically as a service
+## Edit commented sections below to your specific case
+
+[Unit]
+Description=Shulker - A Minecraft Server Discord Listener
+After=network.target
+Wants=network.target
+
+[Service]
+ExecStartPre=/bin/sh -c 'until host example.com; do sleep 1; done'
+ExecStart=/usr/bin/npm start
+Restart=always
+User= ## User that will run the service
+Group= ## User's group
+Environment=PATH=/usr/bin:/usr/local/bin
+Environment=NODE_ENV=production
+WorkingDirectory= ## Path to shulker directory
+
+[Install]
+WantedBy=multi-user.target

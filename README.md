@@ -56,6 +56,35 @@ npm run build
 npm run start
 ```
 
+OPTIONAL: Install systemd script to run shulker as a background service. 
+
+Edit shulker.service.example file to match your environment variables (note .service files are case-sensitive):
+
+```
+[Service]
+ExecStartPre=/bin/sh -c 'until host example.com; do sleep 1; done'
+ExecStart=/usr/bin/npm start
+Restart=always
+User=USER **Replace with user that will run the service**
+Group=GROUP **Replace with user's group**
+Environment=PATH=/usr/bin:/usr/local/bin
+Environment=NODE_ENV=production
+WorkingDirectory=PATH **Replace with path to shulker directory**
+```
+
+Rename to shulker.service and copy to /etc/systemd/system/ 
+
+Next, reload the service files, enable the service and start it:
+
+```sh
+systemctl daemon-reload
+systemctl enable shulker
+systemctl start shulker
+```
+
+Shulker will now start in the background during boot
+
+
 ### Configuration
 Details on the `config.json` file.
 
